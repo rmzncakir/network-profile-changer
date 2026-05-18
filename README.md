@@ -3,55 +3,57 @@
 [![.NET 8](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
 [![WPF](https://img.shields.io/badge/WPF-Windows-0078D6?logo=windows)](https://learn.microsoft.com/dotnet/desktop/wpf/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/rmzncakir/network-profile-changer)](../../releases)
 
-Save, switch, and roll back Windows network adapter IP/DNS configurations from a Fluent UI.
-Adaptör başına 5 profil saklar, geçmişten geri alma yapar, IP tarayıcı içerir.
+Save, switch, and roll back Windows network adapter IP/DNS configurations through a Fluent UI. Up to 5 named profiles per adapter, full history with one-click revert, built-in IP scanner.
 
 > **Windows-only.** Uses `netsh` to apply configuration. Requires administrator rights (enforced via app manifest).
 
 ---
 
-## Özellikler
+## Features
 
-- 🌐 **Profil yönetimi** — adaptör başına 5'e kadar isimli IP profili (Statik / DHCP, IP, Subnet, Gateway, Primary/Secondary DNS).
-- ⚡ **Tek tıkla uygulama** — profili veya manuel ayarları aktif adaptöre anında uygula.
-- ↩️ **Geçmişten geri alma** — son 100 değişikliği görüntüle ve önceki yapılandırmaya tek tuşla dön.
-- 🔍 **IP tarayıcı** — verilen aralıkta ping/ARP ile aktif cihazları bul, CSV'ye dışa aktar.
-- 📡 **Ping aracı** — sürekli ping penceresi ile bağlantı testi.
-- 🔔 **Otomatik bildirim** — adaptör IP'si değişince ya da bağlantı kesilince system tray balloon.
-- 🎨 **3 tema** — Koyu (varsayılan), Koyu Mavi, Açık.
-- 🌍 **Çift dil** — Türkçe / English / Sistem dili (otomatik algılama). Runtime'da değişir, kaydedilir.
-- 🪟 **System tray** — pencere kapatıldığında tepside çalışmaya devam eder; Windows başlangıcında otomatik açılış desteği.
-
----
-
-## Ekran Görüntüleri
-
-> _Buraya `docs/screenshots/` altından ana pencere + profil dialog + IP tarayıcı ekran görüntülerini ekle._
+- 🌐 **Profile management** — up to 5 named IP profiles per adapter (Static / DHCP, IP, Subnet, Gateway, Primary/Secondary DNS).
+- ⚡ **One-click apply** — apply a profile or manual settings to the active adapter instantly.
+- ↩️ **Revert from history** — view the last 100 changes and roll back to a previous configuration with one click.
+- 🔍 **IP scanner** — discover active devices on a given IP range via ping/ARP, export results to CSV.
+- 📡 **Ping tool** — a continuous ping window for connectivity testing.
+- 🔔 **Live notifications** — system-tray balloon when adapter IP changes or connection drops.
+- 🎨 **3 themes** — Dark (default), Dark Blue, Light.
+- 🌍 **Bilingual** — Turkish / English / System (auto-detect). Runtime switching, persisted.
+- 🪟 **System tray** — keeps running in the tray when the window is closed; optional auto-start with Windows.
 
 ---
 
-## Sistem Gereksinimleri
+## Screenshots
 
-- Windows 10 (sürüm 1809+) veya Windows 11
-- .NET 8 Desktop Runtime (kurulum sırasında otomatik tetiklenir)
-- Yönetici hakları (netsh için zorunlu — manifest tarafından kontrol edilir)
+> _Add screenshots here under `docs/screenshots/`._
 
-## Kurulum
+---
 
-### Yayınlanmış sürüm
+## Download
 
-1. [Releases](../../releases) sayfasından **son `NetworkProfileManager-vX.X.X-win-x64.zip`** dosyasını indir.
-2. İstediğin klasöre çıkar (örn. `C:\Tools\NetworkProfileManager\`).
-3. `NetworkProfileManager.exe`'ye çift tıkla. UAC onayı sonrası açılır.
+1. Go to [Releases](../../releases) and grab the latest **`NetworkProfileManager-vX.X.X-win-x64.zip`**.
+2. Extract anywhere (e.g. `C:\Tools\NetworkProfileManager\`).
+3. Double-click `NetworkProfileManager.exe`. Accept the UAC prompt.
 
-> SmartScreen "Bilinmeyen yayıncı" uyarısı çıkarsa → **Daha fazla bilgi → Yine de çalıştır.**
+> If Windows SmartScreen shows an "Unknown publisher" warning → **More info → Run anyway.** The executable is currently unsigned.
 
-### Güncelleme
+### Updating
 
-Yeni sürüm için Releases sayfasını kontrol edin. Yeni zip'i indirip eski klasörün üstüne çıkarın — profiller `%LOCALAPPDATA%\NetworkProfileManager\data\` altında, etkilenmez.
+There is **no auto-updater**. Check this repo's [Releases](../../releases) page for new versions, download the latest zip, and extract it over the old folder. Your profiles live in `%LOCALAPPDATA%\NetworkProfileManager\data\` and are preserved across updates.
 
-### Kaynak koddan derleme
+---
+
+## System requirements
+
+- Windows 10 (build 1809+) or Windows 11
+- Administrator rights (required by `netsh` — handled by the app manifest)
+- Self-contained build — no .NET runtime install required
+
+---
+
+## Build from source
 
 ```powershell
 git clone https://github.com/rmzncakir/network-profile-changer.git
@@ -61,13 +63,13 @@ dotnet publish NetworkProfileManager/NetworkProfileManager.csproj `
     -c Release -r win-x64 --self-contained true -o publish
 ```
 
-Çıktı `publish\` klasöründe.
+Output is in `publish\`.
 
 ---
 
-## Veri konumu
+## Data location
 
-Profiller, geçmiş ve tema ayarları:
+Profiles, history, and theme/language preferences live in:
 
 ```
 %LOCALAPPDATA%\NetworkProfileManager\data\
@@ -76,33 +78,33 @@ Profiller, geçmiş ve tema ayarları:
 └── app_settings.json
 ```
 
-Kaldırma sırasında bu klasörü manuel silebilirsin.
+To uninstall completely, delete the folder above and remove the extracted exe directory.
 
 ---
 
-## Güvenlik
+## Security
 
-- **netsh argümanları** `ProcessStartInfo.ArgumentList` ile geçilir — string interpolation yok, komut enjeksiyonu engellenir.
-- **IPv4 validasyonu** canonical dotted-quad formatı gerektirir (`192.168.1` gibi shorthand'ı reddeder — silent misconfig koruması).
-- **Adaptör adı sanitization** control char, quote, CR/LF ve null byte'ı reddeder.
-- **Profil dosya adı sanitization** path traversal'ı (`../../etc/passwd` vb.) engeller.
-- Uygulama tek bir UAC promptu ile yönetici olarak başlar; per-action elevation döngüsü yoktur.
+- **No netsh injection** — every netsh argument is passed via `ProcessStartInfo.ArgumentList`, never via string interpolation.
+- **Strict IPv4 validation** — canonical dotted-quad form required; shorthand like `192.168.1` (which `IPAddress.TryParse` accepts as `192.168.0.1`) is rejected to prevent silent misconfiguration.
+- **Adapter-name sanitization** — control characters, quotes, CR/LF, and null bytes are rejected.
+- **Path-traversal sanitization** — profile/history filenames are sanitized against adapter IDs.
+- **One UAC prompt** — the app runs as administrator from launch via manifest; no per-action elevation loop.
 
-Zafiyet bildirimi için [SECURITY.md](SECURITY.md).
+To report a vulnerability, see [SECURITY.md](SECURITY.md).
 
 ---
 
-## Testler
+## Tests
 
 ```powershell
 dotnet test NetworkProfileManager.Tests/NetworkProfileManager.Tests.csproj
 ```
 
-xUnit ile **80+ test** — NetworkService validation, repository roundtrip + path-traversal koruması, IDataErrorInfo flow, RelayCommand, AppPaths, IpScannerService.
+xUnit, **94/94 tests passing**, ~51% line coverage on the testable core (Models, Services, Helpers, Commands, validation logic in ViewModels).
 
 ---
 
-## Mimari
+## Architecture
 
 ```
 NetworkProfileManager/
@@ -112,25 +114,25 @@ NetworkProfileManager/
 ├── Views/          MainWindow, AdapterListPanel, ProfilePanel, HistoryPanel, AddProfileDialog,
 │                   IpScannerWindow, PingWindow, ThemeSettingsWindow, TrayPopupWindow
 ├── Themes/         Dark.xaml, DarkBlue.xaml, Light.xaml
-├── Strings/        Tr.xaml, En.xaml — UI dizinleri (DynamicResource ile bağlanır)
+├── Strings/        Tr.xaml, En.xaml — UI strings bound via DynamicResource
 ├── Helpers/        AppPaths, NotificationService, StartupHelper, LanguageManager, Loc
 └── Converters/     BoolToVisibility, StatusToColor, AdapterTypeToSymbol, ...
 ```
 
-MVVM pattern. UI bağımsız sınıflar `NetworkProfileManager.Tests` ile kapsanır.
+Standard MVVM. UI-independent code (Core) is covered by `NetworkProfileManager.Tests`.
 
 ---
 
-## Katkı
+## Contributing
 
-PR'lar açık. Lütfen:
+PRs welcome. Please:
 
-1. Yeni kod test ile gelsin (`NetworkProfileManager.Tests/`).
-2. `dotnet build` ve `dotnet test` geçtiğinden emin ol.
-3. Güvenlik etkili bir değişiklikse açıkla.
+1. Add tests under `NetworkProfileManager.Tests/` for new code.
+2. Make sure `dotnet build` and `dotnet test` pass.
+3. Flag any security-relevant change in the PR description.
 
 ---
 
-## Lisans
+## License
 
 [MIT](LICENSE) © rmzncakir

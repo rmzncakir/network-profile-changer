@@ -67,13 +67,13 @@ jobs:
           tag_name: ${{ github.ref_name }}
           generate_release_notes: true
           body: |
-            ## İndirme / Download
+            ## Download
 
-            1. **NetworkProfileManager-v${{ steps.ver.outputs.version }}-win-x64.zip** dosyasını indir.
-            2. İstediğin klasöre çıkar (örn. `C:\Tools\NetworkProfileManager\`).
-            3. `NetworkProfileManager.exe`'ye çift tıkla. UAC onayı isteyecek (netsh için yönetici hakları gerekli).
+            1. Download **NetworkProfileManager-v${{ steps.ver.outputs.version }}-win-x64.zip**.
+            2. Extract anywhere (e.g. `C:\Tools\NetworkProfileManager\`).
+            3. Double-click `NetworkProfileManager.exe`. Accept the UAC prompt (netsh requires administrator rights).
 
-            > **Not:** İlk açılışta Windows SmartScreen "Bilinmeyen yayıncı" uyarısı gösterebilir. **Daha fazla bilgi → Yine de çalıştır** ile geçebilirsiniz. Exe imzasız.
+            > If Windows SmartScreen shows an "Unknown publisher" warning → **More info → Run anyway.** The executable is currently unsigned.
 
-            ## Otomatik güncelleme
-            Yok — yeni sürüm için bu sayfayı kontrol edip yeni zip'i indirip eski klasörün üstüne çıkarın. Profiller `%LOCALAPPDATA%\NetworkProfileManager\data\` altında, güncelleme onları etkilemez.
+            ## Updating
+            No auto-updater — to upgrade, download the new zip and extract it over the previous folder. Your profiles live in `%LOCALAPPDATA%\NetworkProfileManager\data\` and survive updates.
