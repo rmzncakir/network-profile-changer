@@ -1,0 +1,130 @@
+<UserControl x:Class="NetworkProfileManager.Views.HistoryPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
+  <DockPanel>
+    <Border DockPanel.Dock="Top" Style="{StaticResource PanelHeaderBorder}">
+      <DockPanel>
+        <ui:SymbolIcon Symbol="History20" FontSize="14"
+                       Foreground="{DynamicResource AccentBrush}"
+                       Margin="0,0,8,0" VerticalAlignment="Center"/>
+        <TextBlock Text="{DynamicResource History.Header}" Style="{StaticResource HeaderText}"/>
+        <ui:Button DockPanel.Dock="Right" HorizontalAlignment="Right"
+                   Appearance="Secondary" Padding="8,5"
+                   Command="{Binding ClearHistoryCommand}"
+                   ToolTip="{DynamicResource History.ClearTooltip}">
+          <ui:SymbolIcon Symbol="Delete20" FontSize="14"/>
+        </ui:Button>
+      </DockPanel>
+    </Border>
+
+    <DataGrid ItemsSource="{Binding SelectedAdapter.History}"
+              AutoGenerateColumns="False"
+              IsReadOnly="True"
+              CanUserAddRows="False"
+              CanUserDeleteRows="False"
+              SelectionMode="Single"
+              HeadersVisibility="Column"
+              VerticalScrollBarVisibility="Auto"
+              RowHeight="38"
+              Background="{DynamicResource BackgroundBrush}"
+              BorderThickness="0"
+              Foreground="{DynamicResource TextBrush}"
+              RowBackground="{DynamicResource BackgroundBrush}"
+              AlternatingRowBackground="{DynamicResource AlternatingRowBrush}"
+              GridLinesVisibility="Horizontal"
+              HorizontalGridLinesBrush="{DynamicResource BorderBrush}"
+              FontFamily="Segoe UI"
+              FontSize="12">
+
+      <DataGrid.ColumnHeaderStyle>
+        <Style TargetType="DataGridColumnHeader">
+          <Setter Property="Background"       Value="{DynamicResource SurfaceBrush}"/>
+          <Setter Property="Foreground"       Value="{DynamicResource SubtextBrush}"/>
+          <Setter Property="Padding"          Value="12,7"/>
+          <Setter Property="FontWeight"       Value="SemiBold"/>
+          <Setter Property="FontSize"         Value="11"/>
+          <Setter Property="BorderThickness"  Value="0,0,0,1"/>
+          <Setter Property="BorderBrush"      Value="{DynamicResource BorderBrush}"/>
+          <Setter Property="FontFamily"       Value="Segoe UI"/>
+        </Style>
+      </DataGrid.ColumnHeaderStyle>
+
+      <DataGrid.RowStyle>
+        <Style TargetType="DataGridRow">
+          <Setter Property="Background"             Value="Transparent"/>
+          <Setter Property="Foreground"             Value="{DynamicResource TextBrush}"/>
+          <Setter Property="VerticalContentAlignment" Value="Center"/>
+          <Style.Triggers>
+            <Trigger Property="IsSelected" Value="True">
+              <Setter Property="Background" Value="{DynamicResource RowSelectedBrush}"/>
+            </Trigger>
+          </Style.Triggers>
+        </Style>
+      </DataGrid.RowStyle>
+
+      <DataGrid.CellStyle>
+        <Style TargetType="DataGridCell">
+          <Setter Property="BorderThickness"          Value="0"/>
+          <Setter Property="Foreground"               Value="{DynamicResource TextBrush}"/>
+          <Setter Property="FontFamily"               Value="Segoe UI"/>
+          <Setter Property="FontSize"                 Value="12"/>
+          <Setter Property="Template">
+            <Setter.Value>
+              <ControlTemplate TargetType="DataGridCell">
+                <Border Background="{TemplateBinding Background}"
+                        Padding="12,0">
+                  <ContentPresenter VerticalAlignment="Center"/>
+                </Border>
+              </ControlTemplate>
+            </Setter.Value>
+          </Setter>
+          <Style.Triggers>
+            <Trigger Property="IsSelected" Value="True">
+              <Setter Property="Background" Value="{DynamicResource RowSelectedBrush}"/>
+            </Trigger>
+          </Style.Triggers>
+        </Style>
+      </DataGrid.CellStyle>
+
+      <DataGrid.Columns>
+        <DataGridTextColumn Header="{DynamicResource History.ColumnDate}"
+                            Binding="{Binding Timestamp, StringFormat=\{0:dd.MM HH:mm\}}"
+                            Width="95"/>
+        <DataGridTextColumn Header="{DynamicResource History.ColumnOldIp}"
+                            Binding="{Binding OldIp}"
+                            Width="*"/>
+        <DataGridTextColumn Header="{DynamicResource History.ColumnNewIp}"
+                            Binding="{Binding NewIp}"
+                            Width="*"/>
+        <DataGridTextColumn Header="{DynamicResource History.ColumnProfile}"
+                            Binding="{Binding ProfileName}"
+                            Width="*"/>
+        <DataGridTemplateColumn Header="" Width="115">
+          <DataGridTemplateColumn.CellTemplate>
+            <DataTemplate>
+              <Button Padding="6,3" Margin="4,2"
+                      FontSize="11" FontFamily="Segoe UI"
+                      Cursor="Hand"
+                      Background="{DynamicResource SurfaceBrush}"
+                      BorderBrush="{DynamicResource BorderBrush}"
+                      BorderThickness="1"
+                      Foreground="{DynamicResource TextBrush}"
+                      ToolTip="{DynamicResource History.RevertTooltip}"
+                      Command="{Binding DataContext.RevertCommand,
+                                RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                      CommandParameter="{Binding}">
+                <StackPanel Orientation="Horizontal">
+                  <ui:SymbolIcon Symbol="ArrowUndo20" FontSize="11" Margin="0,0,4,0"
+                                 Foreground="{DynamicResource TextBrush}"/>
+                  <TextBlock Text="{DynamicResource History.RevertButton}" VerticalAlignment="Center"
+                             Foreground="{DynamicResource TextBrush}"/>
+                </StackPanel>
+              </Button>
+            </DataTemplate>
+          </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+      </DataGrid.Columns>
+    </DataGrid>
+  </DockPanel>
+</UserControl>

@@ -1,0 +1,32 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ResourceDictionary.MergedDictionaries>
+    <ResourceDictionary Source="/NetworkProfileManager;component/Themes/Dark.xaml"/>
+  </ResourceDictionary.MergedDictionaries>
+
+  <!-- ── Light palette overrides ────────────────────────────────────── -->
+  <SolidColorBrush x:Key="BackgroundBrush"  Color="#F3F4F8"/>
+  <SolidColorBrush x:Key="SurfaceBrush"     Color="#FFFFFF"/>
+  <SolidColorBrush x:Key="CardBrush"        Color="#FFFFFF"/>
+  <SolidColorBrush x:Key="HoverBrush"       Color="#E5E8EF"/>
+  <SolidColorBrush x:Key="AccentBrush"      Color="#0078D4"/>
+  <SolidColorBrush x:Key="AccentHoverBrush" Color="#106EBE"/>
+  <SolidColorBrush x:Key="AccentPressBrush" Color="#005A9E"/>
+  <SolidColorBrush x:Key="TextBrush"        Color="#1B1B1F"/>
+  <SolidColorBrush x:Key="SubtextBrush"     Color="#5E6272"/>
+  <SolidColorBrush x:Key="MutedBrush"       Color="#9B9EAA"/>
+  <SolidColorBrush x:Key="BorderBrush"      Color="#D1D5DB"/>
+  <SolidColorBrush x:Key="SuccessBrush"     Color="#107C10"/>
+  <SolidColorBrush x:Key="DangerBrush"      Color="#C42B1C"/>
+  <SolidColorBrush x:Key="TitleBarBrush"    Color="#E8EBF2"/>
+
+  <!-- ── Semantic overrides for light mode ────────────────────────── -->
+  <SolidColorBrush x:Key="AlternatingRowBrush"        Color="#EDEEF2"/>
+  <SolidColorBrush x:Key="RowSelectedBrush"           Color="#C5D8F5"/>
+  <SolidColorBrush x:Key="CardSelectedBrush"          Color="#DCE8FA"/>
+  <SolidColorBrush x:Key="BadgeConnectedBrush"        Color="#220078D4"/>
+  <SolidColorBrush x:Key="BadgeDisconnectedBrush"     Color="#33C42B1C"/>
+  <!-- Dark icon on the reddish badge for contrast in light mode -->
+  <SolidColorBrush x:Key="BadgeDisconnectedIconBrush" Color="#8B0000"/>
+  <SolidColorBrush x:Key="DhcpBadgeBrush"             Color="#22107C10"/>
+</ResourceDictionary>

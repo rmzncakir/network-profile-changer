@@ -1,0 +1,176 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ── Common ── -->
+    <sys:String x:Key="Common.Apply">Uygula</sys:String>
+    <sys:String x:Key="Common.Cancel">İptal</sys:String>
+    <sys:String x:Key="Common.Save">Kaydet</sys:String>
+    <sys:String x:Key="Common.Close">Kapat</sys:String>
+    <sys:String x:Key="Common.Delete">Sil</sys:String>
+    <sys:String x:Key="Common.Edit">Düzenle</sys:String>
+    <sys:String x:Key="Common.Refresh">Yenile</sys:String>
+    <sys:String x:Key="Common.Copy">Kopyala</sys:String>
+    <sys:String x:Key="Common.Retry">Tekrar</sys:String>
+    <sys:String x:Key="Common.Ready">Hazır</sys:String>
+
+    <!-- ── MainWindow ── -->
+    <sys:String x:Key="App.Title">Network Profile Manager</sys:String>
+    <sys:String x:Key="MainWindow.IpScannerButton">IP Tara</sys:String>
+    <sys:String x:Key="MainWindow.IpScannerTooltip">IP Tarayıcı Aç</sys:String>
+    <sys:String x:Key="MainWindow.SettingsTooltip">Ayarlar</sys:String>
+    <sys:String x:Key="MainWindow.BusyApplying">IP uygulanıyor, lütfen bekleyin…</sys:String>
+
+    <!-- ── AdapterListPanel ── -->
+    <sys:String x:Key="Adapters.Header">Ağ Adaptörleri</sys:String>
+    <sys:String x:Key="Adapters.NotConnected">Bağlı değil</sys:String>
+    <sys:String x:Key="Adapters.CopyIpTooltip">IP'yi kopyala</sys:String>
+
+    <!-- ── ProfilePanel ── -->
+    <sys:String x:Key="Profiles.Header">Profiller</sys:String>
+    <sys:String x:Key="Profiles.AddButton">Profil Ekle</sys:String>
+    <sys:String x:Key="Profiles.Active">Aktif</sys:String>
+    <sys:String x:Key="Profiles.NoProfiles">Henüz profil yok.&#x0a;'+ Profil Ekle' ile başlayın.</sys:String>
+    <sys:String x:Key="Profiles.NoAdapterSelected">Soldaki listeden bir adaptör seçin.</sys:String>
+    <sys:String x:Key="Profiles.EditTooltip">Profili düzenle</sys:String>
+    <sys:String x:Key="Profiles.DeleteTooltip">Profili sil</sys:String>
+
+    <!-- ── HistoryPanel ── -->
+    <sys:String x:Key="History.Header">Geçmiş</sys:String>
+    <sys:String x:Key="History.ColumnDate">Tarih</sys:String>
+    <sys:String x:Key="History.ColumnOldIp">Eski IP</sys:String>
+    <sys:String x:Key="History.ColumnNewIp">Yeni IP</sys:String>
+    <sys:String x:Key="History.ColumnProfile">Profil</sys:String>
+    <sys:String x:Key="History.RevertButton">Geri Al</sys:String>
+    <sys:String x:Key="History.RevertTooltip">Bu IP'ye geri al</sys:String>
+    <sys:String x:Key="History.ClearTooltip">Geçmişi temizle</sys:String>
+
+    <!-- ── Edit bar ── -->
+    <sys:String x:Key="EditBar.Dhcp">DHCP</sys:String>
+    <sys:String x:Key="EditBar.Static">Statik IP</sys:String>
+    <sys:String x:Key="EditBar.Ip">IP Adresi</sys:String>
+    <sys:String x:Key="EditBar.Subnet">Subnet Maskesi</sys:String>
+    <sys:String x:Key="EditBar.Gateway">Gateway</sys:String>
+    <sys:String x:Key="EditBar.PrimaryDns">Birincil DNS</sys:String>
+    <sys:String x:Key="EditBar.SecondaryDns">İkincil DNS</sys:String>
+    <sys:String x:Key="EditBar.PingHeader">Ping Testi</sys:String>
+    <sys:String x:Key="EditBar.PingPlaceholder">Hedef IP / alan adı</sys:String>
+    <sys:String x:Key="EditBar.PingButton">Ping</sys:String>
+    <sys:String x:Key="EditBar.PingWindowTooltip">Ping Penceresi Aç</sys:String>
+
+    <!-- ── AddProfileDialog ── -->
+    <sys:String x:Key="AddProfile.TitleAdd">Profil Ekle</sys:String>
+    <sys:String x:Key="AddProfile.TitleEdit">Profil Düzenle</sys:String>
+    <sys:String x:Key="AddProfile.NamePlaceholder">Profil adı (zorunlu)</sys:String>
+    <sys:String x:Key="AddProfile.SubnetPlaceholder">Subnet Maskesi (örn. 255.255.255.0)</sys:String>
+    <sys:String x:Key="AddProfile.GatewayPlaceholder">Gateway (opsiyonel)</sys:String>
+    <sys:String x:Key="AddProfile.PrimaryDnsPlaceholder">Birincil DNS (örn. 8.8.8.8)</sys:String>
+    <sys:String x:Key="AddProfile.SecondaryDnsPlaceholder">İkincil DNS (opsiyonel)</sys:String>
+
+    <!-- ── IpScannerWindow ── -->
+    <sys:String x:Key="Scanner.Title">IP Tarayıcı</sys:String>
+    <sys:String x:Key="Scanner.StartIp">Başlangıç IP</sys:String>
+    <sys:String x:Key="Scanner.EndIp">Bitiş IP</sys:String>
+    <sys:String x:Key="Scanner.TimeoutMs">Timeout ms</sys:String>
+    <sys:String x:Key="Scanner.MaxParallel">Paralel</sys:String>
+    <sys:String x:Key="Scanner.StartButton">Tara</sys:String>
+    <sys:String x:Key="Scanner.StopButton">Durdur</sys:String>
+    <sys:String x:Key="Scanner.ApplyIp">IP'yi Uygula</sys:String>
+    <sys:String x:Key="Scanner.ColumnIp">IP Adresi</sys:String>
+    <sys:String x:Key="Scanner.ColumnStatus">Durum</sys:String>
+    <sys:String x:Key="Scanner.ColumnResponseTime">Süre (ms)</sys:String>
+    <sys:String x:Key="Scanner.ColumnHostname">Hostname</sys:String>
+    <sys:String x:Key="Scanner.ColumnMac">MAC</sys:String>
+    <sys:String x:Key="Scanner.StatusOnline">✓ Online</sys:String>
+    <sys:String x:Key="Scanner.StatusOffline">— Offline</sys:String>
+
+    <!-- ── PingWindow ── -->
+    <sys:String x:Key="Ping.Title">Ping</sys:String>
+    <sys:String x:Key="Ping.Pinging">Ping atılıyor: {0}…</sys:String>
+    <sys:String x:Key="Ping.ReplyReceived">Yanıt alındı — {0} ms</sys:String>
+    <sys:String x:Key="Ping.TtlExpired">TTL süresi doldu</sys:String>
+    <sys:String x:Key="Ping.Timeout">Zaman aşımı</sys:String>
+    <sys:String x:Key="Ping.Error">Hata</sys:String>
+    <sys:String x:Key="Ping.Completed">Tamamlandı</sys:String>
+    <sys:String x:Key="Ping.NoReply">Yanıt alınamadı.</sys:String>
+    <sys:String x:Key="Ping.Summary">Min: {0} ms   Max: {1} ms   Ort: {2} ms   Paket: {3}/4 başarılı</sys:String>
+
+    <!-- ── Settings window ── -->
+    <sys:String x:Key="Settings.Title">Ayarlar</sys:String>
+    <sys:String x:Key="Settings.ColorTheme">Renk Teması</sys:String>
+    <sys:String x:Key="Settings.ThemeDark">Koyu  (Varsayılan)</sys:String>
+    <sys:String x:Key="Settings.ThemeDarkBlue">Koyu Mavi</sys:String>
+    <sys:String x:Key="Settings.ThemeLight">Açık</sys:String>
+    <sys:String x:Key="Settings.Language">Dil</sys:String>
+    <sys:String x:Key="Settings.LanguageSystem">Sistem dili</sys:String>
+    <sys:String x:Key="Settings.LanguageTurkish">Türkçe</sys:String>
+    <sys:String x:Key="Settings.LanguageEnglish">English</sys:String>
+    <sys:String x:Key="Settings.Startup">Başlangıç</sys:String>
+    <sys:String x:Key="Settings.StartupTitle">Windows ile başlat</sys:String>
+    <sys:String x:Key="Settings.StartupHint">Başlangıçta tepside çalışır</sys:String>
+
+    <!-- ── Tray ── -->
+    <sys:String x:Key="Tray.OpenMain">Pencereyi aç</sys:String>
+    <sys:String x:Key="Tray.OpenSettings">Ayarlar</sys:String>
+    <sys:String x:Key="Tray.Exit">Çıkış</sys:String>
+    <sys:String x:Key="Tray.ConnectionUp">Bağlantı Kuruldu</sys:String>
+    <sys:String x:Key="Tray.ConnectionDown">Bağlantı Kesildi</sys:String>
+    <sys:String x:Key="Tray.IpChanged">IP Adresi Değişti</sys:String>
+
+    <!-- ── Notifications ── -->
+    <sys:String x:Key="Notify.Success">Başarılı</sys:String>
+    <sys:String x:Key="Notify.Info">Bilgi</sys:String>
+    <sys:String x:Key="Notify.Warning">Uyarı</sys:String>
+    <sys:String x:Key="Notify.Error">Hata</sys:String>
+    <sys:String x:Key="Notify.MissingInfo">Eksik Bilgi</sys:String>
+    <sys:String x:Key="Notify.InvalidInput">Geçersiz Giriş</sys:String>
+
+    <!-- ── Status messages ── -->
+    <sys:String x:Key="Status.Refreshed">Yenilendi — {0}</sys:String>
+    <sys:String x:Key="Status.DhcpEnabled">DHCP etkinleştirildi.</sys:String>
+    <sys:String x:Key="Status.IpApplied">IP uygulandı: {0}</sys:String>
+    <sys:String x:Key="Status.ProfileApplied">Profil uygulandı: {0}</sys:String>
+    <sys:String x:Key="Status.ProfileDeleted">Profil silindi: {0}</sys:String>
+    <sys:String x:Key="Status.HistoryCleared">Geçmiş temizlendi.</sys:String>
+    <sys:String x:Key="Status.ProfileAdded">Profil eklendi: {0}</sys:String>
+    <sys:String x:Key="Status.ProfileUpdated">Profil güncellendi: {0}</sys:String>
+    <sys:String x:Key="Status.MaxProfilesReached">En fazla 5 profil ekleyebilirsiniz.</sys:String>
+    <sys:String x:Key="Status.RevertedDhcp">DHCP'ye geri alındı.</sys:String>
+    <sys:String x:Key="Status.RevertedIp">Geri alındı: {0}</sys:String>
+    <sys:String x:Key="Status.RevertError">Geri alma hatası: {0}</sys:String>
+    <sys:String x:Key="Status.ErrorPrefix">Hata: {0}</sys:String>
+    <sys:String x:Key="Status.CsvExported">CSV kaydedildi: {0}</sys:String>
+    <sys:String x:Key="Status.Copied">Kopyalandı: {0}</sys:String>
+    <sys:String x:Key="Status.ScanComplete">Tamamlandı — {0} aktif cihaz bulundu</sys:String>
+    <sys:String x:Key="Status.ScanProgress">{0}/{1} taranan — {2} aktif cihaz</sys:String>
+    <sys:String x:Key="Status.ScanStopping">Durduruluyor…</sys:String>
+    <sys:String x:Key="Status.ScanCancelled">Tarama durduruldu.</sys:String>
+    <sys:String x:Key="Status.ScanError">Hata oluştu.</sys:String>
+    <sys:String x:Key="Notify.ScanError">Tarama Hatası</sys:String>
+    <sys:String x:Key="Csv.SaveTitle">CSV Olarak Kaydet</sys:String>
+    <sys:String x:Key="Csv.Filter">CSV dosyası|*.csv</sys:String>
+    <sys:String x:Key="Status.PingTargetMissing">Hedef girilmedi.</sys:String>
+    <sys:String x:Key="Status.PingResultMs">{0} — {1} ms</sys:String>
+    <sys:String x:Key="Status.PingTimeout">{0} — zaman aşımı</sys:String>
+
+    <!-- ── Validation ── -->
+    <sys:String x:Key="Validation.InvalidIp">Geçersiz IP adresi</sys:String>
+    <sys:String x:Key="Validation.InvalidSubnet">Geçersiz subnet maskesi</sys:String>
+    <sys:String x:Key="Validation.InvalidGateway">Geçersiz gateway</sys:String>
+    <sys:String x:Key="Validation.InvalidDns">Geçersiz DNS</sys:String>
+    <sys:String x:Key="Validation.NameRequired">İsim zorunludur.</sys:String>
+    <sys:String x:Key="Validation.FillCorrectly">Lütfen zorunlu alanları doğru doldurun.</sys:String>
+    <sys:String x:Key="Validation.IpRangeInvalid">Geçerli bir IP aralığı girin.</sys:String>
+    <sys:String x:Key="Error.AdapterNameEmpty">Adaptör adı boş olamaz.</sys:String>
+    <sys:String x:Key="Error.AdapterNameInvalidChar">Adaptör adı geçersiz karakter içeriyor.</sys:String>
+    <sys:String x:Key="Error.AdapterNameTooLong">Adaptör adı çok uzun.</sys:String>
+    <sys:String x:Key="Error.InvalidIpv4">Geçersiz IPv4 adresi: {0}</sys:String>
+    <sys:String x:Key="Error.NetshStartFailed">netsh başlatılamadı.</sys:String>
+    <sys:String x:Key="Error.NetshExitCode">netsh hata kodu: {0}</sys:String>
+    <sys:String x:Key="Error.EndIpBeforeStart">Bitiş IP başlangıçtan küçük olamaz.</sys:String>
+    <sys:String x:Key="Error.MaxProfiles">Maksimum 5 profil kaydedilebilir.</sys:String>
+
+    <!-- ── Scanner status ── -->
+    <sys:String x:Key="Scanner.Status.AppliedIp">IP uygulandı: {0}</sys:String>
+
+</ResourceDictionary>

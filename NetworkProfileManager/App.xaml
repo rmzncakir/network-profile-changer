@@ -1,0 +1,29 @@
+<Application x:Class="NetworkProfileManager.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:conv="clr-namespace:NetworkProfileManager.Converters">
+
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <!-- WPF-UI 4.x base resources (must come first) -->
+        <ui:ThemesDictionary Theme="Dark"/>
+        <ui:ControlsDictionary/>
+        <!-- Our custom palette / styles on top -->
+        <ResourceDictionary Source="Themes/Dark.xaml"/>
+        <!-- Default strings (LanguageManager swaps this at startup) -->
+        <ResourceDictionary Source="Strings/En.xaml"/>
+      </ResourceDictionary.MergedDictionaries>
+
+      <!-- Converters — always present, defined here so they survive theme swaps -->
+      <conv:BoolToVisibilityConverter x:Key="BoolToVis"/>
+      <conv:BoolToVisibilityConverter x:Key="InvBoolToVis" Invert="True"/>
+      <conv:StatusToColorConverter    x:Key="StatusToColor"/>
+      <conv:BoolToStringConverter     x:Key="BoolToStr"/>
+      <conv:NullToBoolConverter       x:Key="NullToBool"/>
+      <conv:AdapterTypeToSymbolConverter x:Key="AdapterTypeToSymbol"/>
+      <BooleanToVisibilityConverter   x:Key="BoolVis"/>
+    </ResourceDictionary>
+  </Application.Resources>
+</Application>

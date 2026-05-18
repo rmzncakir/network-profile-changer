@@ -1,0 +1,16 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ResourceDictionary.MergedDictionaries>
+    <ResourceDictionary Source="/NetworkProfileManager;component/Themes/Dark.xaml"/>
+  </ResourceDictionary.MergedDictionaries>
+
+  <!-- Override accent with purple -->
+  <Color x:Key="AccentPrimaryColor">#7C4DFF</Color>
+  <Color x:Key="AccentHoverColor">#9E6FFF</Color>
+  <Color x:Key="AccentPressColor">#5E35B1</Color>
+  <SolidColorBrush x:Key="AccentBrush"      Color="#7C4DFF"/>
+  <SolidColorBrush x:Key="AccentHoverBrush" Color="#9E6FFF"/>
+  <SolidColorBrush x:Key="AccentPressBrush" Color="#5E35B1"/>
+  <!-- Badge uses purple accent in DarkBlue -->
+  <SolidColorBrush x:Key="BadgeConnectedBrush" Color="#337C4DFF"/>
+</ResourceDictionary>

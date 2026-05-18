@@ -1,0 +1,49 @@
+# ── Build output ─────────────────────────────────────────────
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+[Dd]ebug/
+[Rr]elease/
+*.dll
+*.exe
+*.pdb
+*.cache
+
+# ── Visual Studio / Rider ────────────────────────────────────
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.vsidx
+
+# ── NuGet ────────────────────────────────────────────────────
+*.nuget.props
+*.nuget.targets
+project.lock.json
+*.nupkg
+*.snupkg
+
+# ── Test results / coverage ──────────────────────────────────
+[Tt]est[Rr]esult*/
+TestResults/
+coverage*.xml
+coverage*.json
+*.coverage
+*.coveragexml
+*.trx
+
+# ── ReSharper / dotCover ─────────────────────────────────────
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# ── Misc ─────────────────────────────────────────────────────
+*.log
+Thumbs.db
+.DS_Store
+
+# ── Local data the app writes (in case anyone runs from repo root) ──
+data/
+*.bak

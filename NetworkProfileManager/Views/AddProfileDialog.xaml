@@ -1,0 +1,88 @@
+<ui:FluentWindow x:Class="NetworkProfileManager.Views.AddProfileDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        Title="{DynamicResource AddProfile.TitleAdd}"
+        Width="400" Height="420"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        ExtendsContentIntoTitleBar="True"
+        Background="{DynamicResource BackgroundBrush}"
+        Foreground="{DynamicResource TextBrush}">
+
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+
+    <ui:TitleBar x:Name="DialogTitleBar"
+                 Grid.Row="0"
+                 Title="{DynamicResource AddProfile.TitleAdd}"
+                 Background="{DynamicResource TitleBarBrush}"
+                 Foreground="{DynamicResource TextBrush}"
+                 ShowMaximize="False" ShowMinimize="False"/>
+
+    <Grid Grid.Row="1" Margin="20,14,20,16">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="12"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="12"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <!-- Name -->
+      <ui:TextBox Grid.Row="0"
+                  PlaceholderText="{DynamicResource AddProfile.NamePlaceholder}"
+                  x:Name="TxtName"
+                  Text="{Binding Name, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                  Icon="{ui:SymbolIcon Tag20}"/>
+
+      <!-- DHCP / Statik seçimi -->
+      <StackPanel Grid.Row="2" Orientation="Horizontal">
+        <RadioButton Content="{DynamicResource EditBar.Dhcp}" IsChecked="{Binding IsDhcp}" Margin="0,0,20,0"/>
+        <RadioButton Content="{DynamicResource EditBar.Static}" IsChecked="{Binding IsStatic}"/>
+      </StackPanel>
+
+      <!-- IP Alanları -->
+      <StackPanel Grid.Row="4">
+        <ui:TextBox PlaceholderText="{DynamicResource EditBar.Ip}"
+                    Margin="0,0,0,8"
+                    Text="{Binding IpAddress, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                    IsEnabled="{Binding IsStatic}"
+                    Icon="{ui:SymbolIcon PlugConnected20}"/>
+        <ui:TextBox PlaceholderText="{DynamicResource AddProfile.SubnetPlaceholder}"
+                    Margin="0,0,0,8"
+                    Text="{Binding SubnetMask, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                    IsEnabled="{Binding IsStatic}"
+                    Icon="{ui:SymbolIcon NetworkCheck20}"/>
+        <ui:TextBox PlaceholderText="{DynamicResource AddProfile.GatewayPlaceholder}"
+                    Margin="0,0,0,8"
+                    Text="{Binding Gateway, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                    IsEnabled="{Binding IsStatic}"
+                    Icon="{ui:SymbolIcon Router20}"/>
+        <ui:TextBox PlaceholderText="{DynamicResource AddProfile.PrimaryDnsPlaceholder}"
+                    Margin="0,0,0,8"
+                    Text="{Binding PrimaryDns, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                    IsEnabled="{Binding IsStatic}"
+                    Icon="{ui:SymbolIcon Globe24}"/>
+        <ui:TextBox PlaceholderText="{DynamicResource AddProfile.SecondaryDnsPlaceholder}"
+                    Text="{Binding SecondaryDns, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                    IsEnabled="{Binding IsStatic}"
+                    Icon="{ui:SymbolIcon Globe24}"/>
+      </StackPanel>
+
+      <!-- Buttons -->
+      <StackPanel Grid.Row="6" Orientation="Horizontal" HorizontalAlignment="Right">
+        <ui:Button Content="{DynamicResource Common.Cancel}" Appearance="Secondary"
+                   Padding="16,7" Margin="0,0,8,0" Click="Cancel_Click"/>
+        <ui:Button Content="{DynamicResource Common.Save}" Appearance="Primary"
+                   Padding="16,7" Click="Save_Click" IsDefault="True"/>
+      </StackPanel>
+    </Grid>
+  </Grid>
+</ui:FluentWindow>

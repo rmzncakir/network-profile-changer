@@ -1,0 +1,79 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Extract version from tag
+        id: ver
+        shell: pwsh
+        run: |
+          $ver = "${{ github.ref_name }}".TrimStart('v')
+          "version=$ver" >> $env:GITHUB_OUTPUT
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Test
+        run: dotnet test NetworkProfileManager.Tests/NetworkProfileManager.Tests.csproj --configuration Release --logger "console;verbosity=minimal"
+
+      - name: Publish (self-contained win-x64)
+        run: >
+          dotnet publish NetworkProfileManager/NetworkProfileManager.csproj
+          -c Release
+          -r win-x64
+          --self-contained true
+          -p:Version=${{ steps.ver.outputs.version }}
+          -p:AssemblyVersion=${{ steps.ver.outputs.version }}.0
+          -p:FileVersion=${{ steps.ver.outputs.version }}.0
+          -p:DebugType=none
+          -p:DebugSymbols=false
+          -p:PublishReadyToRun=false
+          -o publish
+
+      - name: Clean publish artifacts
+        shell: pwsh
+        run: |
+          Get-ChildItem -Path publish -Filter "*.pdb" -Recurse | Remove-Item -Force -ErrorAction SilentlyContinue
+
+      - name: Zip release
+        shell: pwsh
+        run: |
+          $zipName = "NetworkProfileManager-v${{ steps.ver.outputs.version }}-win-x64.zip"
+          Compress-Archive -Path publish/* -DestinationPath $zipName -Force
+          "Created $zipName ($((Get-Item $zipName).Length / 1MB) MB)"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: NetworkProfileManager-v*-win-x64.zip
+          name: ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          generate_release_notes: true
+          body: |
+            ## İndirme / Download
+
+            1. **NetworkProfileManager-v${{ steps.ver.outputs.version }}-win-x64.zip** dosyasını indir.
+            2. İstediğin klasöre çıkar (örn. `C:\Tools\NetworkProfileManager\`).
+            3. `NetworkProfileManager.exe`'ye çift tıkla. UAC onayı isteyecek (netsh için yönetici hakları gerekli).
+
+            > **Not:** İlk açılışta Windows SmartScreen "Bilinmeyen yayıncı" uyarısı gösterebilir. **Daha fazla bilgi → Yine de çalıştır** ile geçebilirsiniz. Exe imzasız.
+
+            ## Otomatik güncelleme
+            Yok — yeni sürüm için bu sayfayı kontrol edip yeni zip'i indirip eski klasörün üstüne çıkarın. Profiller `%LOCALAPPDATA%\NetworkProfileManager\data\` altında, güncelleme onları etkilemez.
