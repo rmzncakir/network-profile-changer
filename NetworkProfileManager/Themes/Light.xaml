@@ -29,4 +29,8 @@
   <!-- Dark icon on the reddish badge for contrast in light mode -->
   <SolidColorBrush x:Key="BadgeDisconnectedIconBrush" Color="#8B0000"/>
   <SolidColorBrush x:Key="DhcpBadgeBrush"             Color="#22107C10"/>
+  <!-- Light scrim: dim toward white, not black -->
+  <SolidColorBrush x:Key="ScrimBrush"                 Color="#99FFFFFF"/>
+  <!-- Darker orange keeps contrast on white -->
+  <SolidColorBrush x:Key="WarningBrush"               Color="#B85C00"/>
 </ResourceDictionary>

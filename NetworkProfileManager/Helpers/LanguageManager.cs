@@ -1,10 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Threading;
 using System.Windows;
-using Newtonsoft.Json;
 
 namespace NetworkProfileManager.Helpers
 {
@@ -19,8 +16,7 @@ namespace NetworkProfileManager.Helpers
         public const string Turkish       = "tr";
         public const string English       = "en";
 
-        private const string SettingsFileName = "app_settings.json";
-        private const string LanguageKey      = "Language";
+        private const string LanguageKey = "Language";
 
         /// <summary>The user's selected preference (may be "System").</summary>
         public static string CurrentPreference { get; private set; } = SystemDefault;
@@ -113,43 +109,9 @@ namespace NetworkProfileManager.Helpers
 
         // ── Persistence ────────────────────────────────────────────
 
-        private static string SettingsPath => Path.Combine(AppPaths.DataDirectory, SettingsFileName);
-
-        private static string? LoadSavedPreference()
-        {
-            try
-            {
-                if (!File.Exists(SettingsPath)) return null;
-                var json = File.ReadAllText(SettingsPath);
-                var obj = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
-                if (obj is not null && obj.TryGetValue(LanguageKey, out var v) && !string.IsNullOrEmpty(v))
-                    return v;
-            }
-            catch { }
-            return null;
-        }
+        private static string? LoadSavedPreference() => AppSettingsStore.Get(LanguageKey);
 
         private static void SavePreference(string preference)
-        {
-            try
-            {
-                Dictionary<string, string> obj;
-                if (File.Exists(SettingsPath))
-                {
-                    var json = File.ReadAllText(SettingsPath);
-                    obj = JsonConvert.DeserializeObject<Dictionary<string, string>>(json)
-                          ?? new Dictionary<string, string>();
-                }
-                else
-                {
-                    obj = new Dictionary<string, string>();
-                }
-
-                obj[LanguageKey] = preference;
-                File.WriteAllText(SettingsPath,
-                    JsonConvert.SerializeObject(obj, Formatting.Indented));
-            }
-            catch { /* best-effort */ }
-        }
+            => AppSettingsStore.Set(LanguageKey, preference);
     }
 }

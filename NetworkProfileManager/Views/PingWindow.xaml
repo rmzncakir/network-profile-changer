@@ -89,7 +89,7 @@
         </ui:Button>
         <ui:Button Content="{DynamicResource Common.Close}"
                    Appearance="Primary"
-                   Padding="14,6" Click="CloseClick"/>
+                   Padding="14,6" Click="CloseClick" IsCancel="True"/>
       </StackPanel>
     </Border>
   </Grid>

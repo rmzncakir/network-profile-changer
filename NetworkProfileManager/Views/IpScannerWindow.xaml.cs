@@ -23,7 +23,7 @@ namespace NetworkProfileManager.Views
             _vm.ApplyIpCallback = ip =>
             {
                 applyIpCallback?.Invoke(ip);
-                _vm.StatusText = $"IP uygulandı: {ip}";
+                _vm.StatusText = Helpers.Loc.Format("Scanner.Status.AppliedIp", ip);
             };
             DataContext = _vm;
         }
@@ -36,7 +36,7 @@ namespace NetworkProfileManager.Views
             if (sender is System.Windows.FrameworkElement fe && fe.Tag is string ip && !string.IsNullOrEmpty(ip))
             {
                 Clipboard.SetText(ip);
-                _vm.StatusText = $"Kopyalandı: {ip}";
+                _vm.StatusText = Helpers.Loc.Format("Status.Copied", ip);
             }
         }
 

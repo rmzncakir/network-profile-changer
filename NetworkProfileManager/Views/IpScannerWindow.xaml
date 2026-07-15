@@ -184,6 +184,7 @@
                            Padding="4,2" Margin="6,0,0,0"
                            VerticalAlignment="Center"
                            ToolTip="{DynamicResource Adapters.CopyIpTooltip}"
+                           AutomationProperties.Name="{DynamicResource Adapters.CopyIpTooltip}"
                            Tag="{Binding IpAddress}"
                            Click="CopyIp_Click">
                   <ui:SymbolIcon Symbol="Copy20" FontSize="11"/>

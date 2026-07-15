@@ -14,6 +14,7 @@ namespace NetworkProfileManager.Services
     public sealed class NetworkMonitorService : IDisposable
     {
         private readonly NotifyIcon _trayIcon;
+        private readonly object _gate = new();
         private Dictionary<string, AdapterSnapshot> _snapshot;
         private bool _disposed;
 
@@ -34,9 +35,19 @@ namespace NetworkProfileManager.Services
         {
             var current = TakeSnapshot();
 
+            // NetworkAddressChanged fires on threadpool threads; serialize the
+            // compare-then-swap so two rapid events can't interleave and diff
+            // against a half-updated snapshot.
+            Dictionary<string, AdapterSnapshot> previous;
+            lock (_gate)
+            {
+                previous = _snapshot;
+                _snapshot = current;
+            }
+
             foreach (var (id, now) in current)
             {
-                if (!_snapshot.TryGetValue(id, out var prev)) continue;
+                if (!previous.TryGetValue(id, out var prev)) continue;
 
                 bool wasUp  = prev.Status == OperationalStatus.Up;
                 bool isUp   = now.Status  == OperationalStatus.Up;
@@ -62,8 +73,6 @@ namespace NetworkProfileManager.Services
                          ToolTipIcon.Info);
                 }
             }
-
-            _snapshot = current;
         }
 
         private static Dictionary<string, AdapterSnapshot> TakeSnapshot()

@@ -23,4 +23,7 @@
   <ItemGroup>
     <Resource Include="Assets\icon.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="NetworkProfileManager.Tests" />
+  </ItemGroup>
 </Project>

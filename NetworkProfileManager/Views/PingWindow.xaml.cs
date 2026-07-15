@@ -14,10 +14,15 @@ namespace NetworkProfileManager.Views
         private readonly string _host;
         private bool _running;
 
-        private static readonly SolidColorBrush BrushSuccess  = new SolidColorBrush(Color.FromRgb(0x00, 0xE6, 0x76));
-        private static readonly SolidColorBrush BrushTimeout  = new SolidColorBrush(Color.FromRgb(0xEF, 0x53, 0x50));
-        private static readonly SolidColorBrush BrushTtl      = new SolidColorBrush(Color.FromRgb(0xFF, 0x6D, 0x00));
-        private static readonly SolidColorBrush BrushSubtext  = new SolidColorBrush(Color.FromRgb(0x90, 0xA4, 0xAE));
+        // Resolve against the active theme so ping colors adapt to Light/Dark
+        // instead of staying pinned to the dark palette.
+        private Brush BrushSuccess => Themed("SuccessBrush", Color.FromRgb(0x00, 0xE6, 0x76));
+        private Brush BrushTimeout => Themed("DangerBrush",  Color.FromRgb(0xEF, 0x53, 0x50));
+        private Brush BrushTtl     => Themed("WarningBrush", Color.FromRgb(0xFF, 0x6D, 0x00));
+        private Brush BrushSubtext => Themed("SubtextBrush", Color.FromRgb(0x90, 0xA4, 0xAE));
+
+        private Brush Themed(string key, Color fallback)
+            => TryFindResource(key) as Brush ?? new SolidColorBrush(fallback);
 
         public PingWindow(string host)
         {
@@ -65,7 +70,7 @@ namespace NetworkProfileManager.Views
 
         private void AddResult(PingReply reply, int seq, List<long> times)
         {
-            SolidColorBrush color;
+            Brush color;
             string text;
 
             switch (reply.Status)

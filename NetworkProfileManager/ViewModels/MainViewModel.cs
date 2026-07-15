@@ -24,6 +24,15 @@ namespace NetworkProfileManager.ViewModels
 
         public ObservableCollection<AdapterViewModel> Adapters { get; } = new ObservableCollection<AdapterViewModel>();
 
+        /// <summary>
+        /// Set by the view to present a Yes/No confirmation dialog for destructive
+        /// actions. Returns true when the user confirms. If null (e.g. in tests),
+        /// actions proceed without a prompt.
+        /// </summary>
+        public Func<string, string, Task<bool>>? ConfirmHandler { get; set; }
+
+        public const int MaxProfilesPerAdapter = 5;
+
         public AdapterViewModel? SelectedAdapter
         {
             get => _selectedAdapter;
@@ -63,13 +72,13 @@ namespace NetworkProfileManager.ViewModels
                 async p => await ApplyProfileAsync(p as ProfileViewModel),
                 p => p is ProfileViewModel && !IsLoading);
             DeleteProfileCommand = new RelayCommand(
-                p => DeleteProfile(p as ProfileViewModel),
+                async p => await DeleteProfileAsync(p as ProfileViewModel),
                 p => p is ProfileViewModel && !IsLoading);
             RevertCommand = new RelayCommand(
                 async p => await RevertAsync(p as HistoryEntry),
                 p => p is HistoryEntry h && (h.WasDhcp || !string.IsNullOrEmpty(h.OldIp)) && !IsLoading);
             ClearHistoryCommand = new RelayCommand(
-                _ => ClearHistory(),
+                async _ => await ClearHistoryAsync(),
                 _ => SelectedAdapter != null && !IsLoading);
 
             Refresh();
@@ -114,53 +123,34 @@ namespace NetworkProfileManager.ViewModels
             StatusMessage = Helpers.Loc.Format("Status.Refreshed", DateTime.Now.ToString("HH:mm:ss"));
         }
 
-        // ── Apply static/DHCP ────────────────────────────────────────
-        private async Task ApplyAsync()
+        /// <summary>
+        /// Shared apply pipeline. Captures the target adapter as a local so a
+        /// mid-apply selection change can't redirect the netsh action or record the
+        /// history entry against the wrong adapter (the previous per-command reads of
+        /// the SelectedAdapter property were racy).
+        /// </summary>
+        private async Task ApplyCoreAsync(
+            AdapterViewModel adapter,
+            Action netshAction,
+            Func<HistoryEntry>? buildEntry,
+            Func<string> successMsg,
+            string errorKey = "Status.ErrorPrefix")
         {
-            if (SelectedAdapter == null) return;
-
-            string oldIp = SelectedAdapter.Info.CurrentIp;
-            string oldSubnet = SelectedAdapter.Info.CurrentSubnet;
-            string oldGateway = SelectedAdapter.Info.CurrentGateway;
-            bool wasDhcp = SelectedAdapter.Info.IsDhcp;
             IsLoading = true;
-
             try
             {
-                // App manifest forces admin at startup — no need to re-elevate per action.
-                await Task.Run(() =>
+                // App runs asInvoker; NetworkService elevates per apply via UAC
+                // (single prompt for the whole netsh batch) when not admin.
+                await Task.Run(netshAction);
+
+                if (buildEntry != null)
                 {
-                    if (SelectedAdapter.EditIsDhcp)
-                        _networkSvc.ApplyDhcp(SelectedAdapter.Name);
-                    else
-                        _networkSvc.ApplyStaticIp(
-                            SelectedAdapter.Name,
-                            SelectedAdapter.EditIp,
-                            SelectedAdapter.EditSubnet,
-                            SelectedAdapter.EditGateway,
-                            SelectedAdapter.EditPrimaryDns,
-                            SelectedAdapter.EditSecondaryDns);
-                });
+                    var entry = buildEntry();
+                    _historyRepo.Append(adapter.Info.Id, entry);
+                    adapter.History.Insert(0, entry);
+                }
 
-                var entry = new HistoryEntry
-                {
-                    AdapterId = SelectedAdapter.Info.Id,
-                    AdapterName = SelectedAdapter.Name,
-                    OldIp = oldIp,
-                    OldSubnet = oldSubnet,
-                    OldGateway = oldGateway,
-                    NewIp = SelectedAdapter.EditIsDhcp ? "DHCP" : SelectedAdapter.EditIp,
-                    WasDhcp = wasDhcp,
-                    IsDhcp = SelectedAdapter.EditIsDhcp,
-                    ProfileName = null
-                };
-                _historyRepo.Append(SelectedAdapter.Info.Id, entry);
-                SelectedAdapter.History.Insert(0, entry);
-
-                string msg = SelectedAdapter.EditIsDhcp
-                    ? Helpers.Loc.Get("Status.DhcpEnabled", "DHCP etkinleştirildi.")
-                    : Helpers.Loc.Format("Status.IpApplied", SelectedAdapter.EditIp);
-
+                string msg = successMsg();
                 StatusMessage = msg;
                 NotificationService.Success(msg);
                 Refresh();
@@ -168,7 +158,7 @@ namespace NetworkProfileManager.ViewModels
             catch (Exception ex)
             {
                 NotificationService.Error(ex.Message);
-                StatusMessage = Helpers.Loc.Format("Status.ErrorPrefix", ex.Message);
+                StatusMessage = Helpers.Loc.Format(errorKey, ex.Message);
             }
             finally
             {
@@ -176,35 +166,70 @@ namespace NetworkProfileManager.ViewModels
             }
         }
 
+        // ── Apply static/DHCP ────────────────────────────────────────
+        private async Task ApplyAsync()
+        {
+            var adapter = SelectedAdapter;
+            if (adapter == null) return;
+
+            // Snapshot everything up front — the user must not be able to mutate
+            // these between the UAC prompt and the history record.
+            string name = adapter.Name;
+            bool editDhcp = adapter.EditIsDhcp;
+            string editIp = adapter.EditIp, editSubnet = adapter.EditSubnet, editGw = adapter.EditGateway;
+            string editDns1 = adapter.EditPrimaryDns, editDns2 = adapter.EditSecondaryDns;
+            string oldIp = adapter.Info.CurrentIp, oldSubnet = adapter.Info.CurrentSubnet;
+            string oldGateway = adapter.Info.CurrentGateway;
+            bool wasDhcp = adapter.Info.IsDhcp;
+
+            await ApplyCoreAsync(
+                adapter,
+                () =>
+                {
+                    if (editDhcp) _networkSvc.ApplyDhcp(name);
+                    else _networkSvc.ApplyStaticIp(name, editIp, editSubnet, editGw, editDns1, editDns2);
+                },
+                () => new HistoryEntry
+                {
+                    AdapterId = adapter.Info.Id,
+                    AdapterName = name,
+                    OldIp = oldIp,
+                    OldSubnet = oldSubnet,
+                    OldGateway = oldGateway,
+                    NewIp = editDhcp ? "DHCP" : editIp,
+                    WasDhcp = wasDhcp,
+                    IsDhcp = editDhcp,
+                    ProfileName = null
+                },
+                () => editDhcp
+                    ? Helpers.Loc.Get("Status.DhcpEnabled", "DHCP etkinleştirildi.")
+                    : Helpers.Loc.Format("Status.IpApplied", editIp));
+        }
+
         // ── Apply profile ────────────────────────────────────────────
         private async Task ApplyProfileAsync(ProfileViewModel? pvm)
         {
-            if (pvm == null || SelectedAdapter == null) return;
+            var adapter = SelectedAdapter;
+            if (pvm == null || adapter == null) return;
 
-            string oldIp = SelectedAdapter.Info.CurrentIp;
-            string oldSubnet = SelectedAdapter.Info.CurrentSubnet;
-            string oldGateway = SelectedAdapter.Info.CurrentGateway;
-            bool wasDhcp = SelectedAdapter.Info.IsDhcp;
-            IsLoading = true;
+            string name = adapter.Name;
+            var p = pvm.Model;
+            string oldIp = adapter.Info.CurrentIp, oldSubnet = adapter.Info.CurrentSubnet;
+            string oldGateway = adapter.Info.CurrentGateway;
+            bool wasDhcp = adapter.Info.IsDhcp;
 
-            try
-            {
-                var p = pvm.Model;
-
-                await Task.Run(() =>
+            await ApplyCoreAsync(
+                adapter,
+                () =>
                 {
-                    if (p.IsDhcp)
-                        _networkSvc.ApplyDhcp(SelectedAdapter.Name);
-                    else
-                        _networkSvc.ApplyStaticIp(
-                            SelectedAdapter.Name, p.IpAddress, p.SubnetMask, p.Gateway,
-                            p.PrimaryDns, p.SecondaryDns);
-                });
-
-                var entry = new HistoryEntry
+                    if (p.IsDhcp) _networkSvc.ApplyDhcp(name);
+                    else _networkSvc.ApplyStaticIp(
+                        name, p.IpAddress, p.SubnetMask, p.Gateway, p.PrimaryDns, p.SecondaryDns);
+                },
+                () => new HistoryEntry
                 {
-                    AdapterId = SelectedAdapter.Info.Id,
-                    AdapterName = SelectedAdapter.Name,
+                    AdapterId = adapter.Info.Id,
+                    AdapterName = name,
                     OldIp = oldIp,
                     OldSubnet = oldSubnet,
                     OldGateway = oldGateway,
@@ -212,34 +237,31 @@ namespace NetworkProfileManager.ViewModels
                     WasDhcp = wasDhcp,
                     IsDhcp = p.IsDhcp,
                     ProfileName = p.Name
-                };
-                _historyRepo.Append(SelectedAdapter.Info.Id, entry);
-                SelectedAdapter.History.Insert(0, entry);
-
-                string msg = Helpers.Loc.Format("Status.ProfileApplied", p.Name);
-                StatusMessage = msg;
-                NotificationService.Success(msg);
-                Refresh();
-            }
-            catch (Exception ex)
-            {
-                NotificationService.Error(ex.Message);
-                StatusMessage = Helpers.Loc.Format("Status.ErrorPrefix", ex.Message);
-            }
-            finally
-            {
-                IsLoading = false;
-            }
+                },
+                () => Helpers.Loc.Format("Status.ProfileApplied", p.Name));
         }
 
         // ── Delete profile ───────────────────────────────────────────
-        private void DeleteProfile(ProfileViewModel? pvm)
+        private async Task DeleteProfileAsync(ProfileViewModel? pvm)
         {
-            if (pvm == null || SelectedAdapter == null) return;
-            SelectedAdapter.Profiles.Remove(pvm);
-            _profileRepo.Save(SelectedAdapter.Info.Id,
-                SelectedAdapter.Profiles.Select(p => p.Model).ToList());
+            var adapter = SelectedAdapter;
+            if (pvm == null || adapter == null) return;
+
+            if (!await ConfirmAsync(
+                    Helpers.Loc.Get("Confirm.DeleteProfileTitle", "Profili Sil"),
+                    Helpers.Loc.Format("Confirm.DeleteProfileMessage", pvm.Name)))
+                return;
+
+            adapter.Profiles.Remove(pvm);
+            _profileRepo.Save(adapter.Info.Id,
+                adapter.Profiles.Select(p => p.Model).ToList());
             NotificationService.Info(Helpers.Loc.Format("Status.ProfileDeleted", pvm.Name));
+        }
+
+        private async Task<bool> ConfirmAsync(string title, string message)
+        {
+            if (ConfirmHandler == null) return true;
+            return await ConfirmHandler(title, message);
         }
 
         // ── Ping ─────────────────────────────────────────────────────
@@ -271,44 +293,38 @@ namespace NetworkProfileManager.ViewModels
         // ── Revert ───────────────────────────────────────────────────
         private async Task RevertAsync(HistoryEntry? entry)
         {
-            if (entry == null || SelectedAdapter == null) return;
+            var adapter = SelectedAdapter;
+            if (entry == null || adapter == null) return;
 
-            IsLoading = true;
-            try
-            {
-                await Task.Run(() =>
+            string name = adapter.Name;
+            await ApplyCoreAsync(
+                adapter,
+                () =>
                 {
-                    if (entry.WasDhcp)
-                        _networkSvc.ApplyDhcp(SelectedAdapter.Name);
-                    else
-                        _networkSvc.ApplyStaticIp(
-                            SelectedAdapter.Name, entry.OldIp, entry.OldSubnet, entry.OldGateway);
-                });
-
-                string msg = entry.WasDhcp
+                    if (entry.WasDhcp) _networkSvc.ApplyDhcp(name);
+                    else _networkSvc.ApplyStaticIp(name, entry.OldIp, entry.OldSubnet, entry.OldGateway);
+                },
+                buildEntry: null,
+                () => entry.WasDhcp
                     ? Helpers.Loc.Get("Status.RevertedDhcp", "DHCP'ye geri alındı.")
-                    : Helpers.Loc.Format("Status.RevertedIp", entry.OldIp);
-                StatusMessage = msg;
-                NotificationService.Success(msg);
-                Refresh();
-            }
-            catch (Exception ex)
-            {
-                NotificationService.Error(ex.Message);
-                StatusMessage = Helpers.Loc.Format("Status.RevertError", ex.Message);
-            }
-            finally
-            {
-                IsLoading = false;
-            }
+                    : Helpers.Loc.Format("Status.RevertedIp", entry.OldIp),
+                errorKey: "Status.RevertError");
         }
 
         // ── Clear history ────────────────────────────────────────────
-        private void ClearHistory()
+        private async Task ClearHistoryAsync()
         {
-            if (SelectedAdapter == null) return;
-            _historyRepo.Clear(SelectedAdapter.Info.Id);
-            SelectedAdapter.History.Clear();
+            var adapter = SelectedAdapter;
+            if (adapter == null) return;
+
+            if (!await ConfirmAsync(
+                    Helpers.Loc.Get("Confirm.ClearHistoryTitle", "Geçmişi Temizle"),
+                    Helpers.Loc.Get("Confirm.ClearHistoryMessage",
+                        "Bu adaptörün tüm geçmiş kayıtları silinecek. Devam edilsin mi?")))
+                return;
+
+            _historyRepo.Clear(adapter.Info.Id);
+            adapter.History.Clear();
             var cleared = Helpers.Loc.Get("Status.HistoryCleared", "Geçmiş temizlendi.");
             NotificationService.Info(cleared);
             StatusMessage = cleared;
@@ -335,7 +351,7 @@ namespace NetworkProfileManager.ViewModels
         public void AddProfile(IpProfile profile)
         {
             if (SelectedAdapter == null) return;
-            if (SelectedAdapter.Profiles.Count >= 5)
+            if (SelectedAdapter.Profiles.Count >= MaxProfilesPerAdapter)
             {
                 NotificationService.Warning(Helpers.Loc.Get("Status.MaxProfilesReached",
                     "En fazla 5 profil ekleyebilirsiniz."));

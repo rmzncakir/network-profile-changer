@@ -31,8 +31,10 @@ namespace NetworkProfileManager.ViewModels
         private readonly IpScannerService _svc = new IpScannerService();
         private CancellationTokenSource? _cts;
 
-        private static readonly string SettingsPath =
-            Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "scanner_settings.json");
+        // Stored alongside every other app data file so it persists even under an
+        // ACL-protected install (%ProgramFiles%), where exe-relative writes fail.
+        private static string SettingsPath =>
+            Path.Combine(AppPaths.DataDirectory, "scanner_settings.json");
 
         private string _startIp   = "";
         private string _endIp     = "";
@@ -41,7 +43,7 @@ namespace NetworkProfileManager.ViewModels
         private bool   _scanning;
         private int    _progress;
         private int    _total;
-        private string _statusText = "Hazır";
+        private string _statusText = Loc.Get("Common.Ready", "Hazır");
 
         public string StartIp
         {
@@ -201,13 +203,42 @@ namespace NetworkProfileManager.ViewModels
             };
             if (dlg.ShowDialog() != true) return;
 
-            var sb = new StringBuilder();
-            sb.AppendLine("IP,Status,Time(ms),Hostname,MAC");
-            foreach (var r in Results)
-                sb.AppendLine($"{r.IpAddress},{(r.IsOnline ? "Online" : "Offline")},{r.ResponseTime},{r.HostName},{r.MacAddress}");
+            try
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine("IP,Status,Time(ms),Hostname,MAC");
+                foreach (var r in Results)
+                    sb.AppendLine(string.Join(",",
+                        Csv(r.IpAddress),
+                        r.IsOnline ? "Online" : "Offline",
+                        r.ResponseTime.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                        Csv(r.HostName),
+                        Csv(r.MacAddress)));
 
-            File.WriteAllText(dlg.FileName, sb.ToString(), Encoding.UTF8);
-            StatusText = Loc.Format("Status.CsvExported", dlg.FileName);
+                File.WriteAllText(dlg.FileName, sb.ToString(), Encoding.UTF8);
+                StatusText = Loc.Format("Status.CsvExported", dlg.FileName);
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Error(ex.Message, Loc.Get("Csv.ExportError", "Dışa aktarma başarısız"));
+                StatusText = Loc.Get("Csv.ExportError", "Dışa aktarma başarısız");
+            }
+        }
+
+        /// <summary>
+        /// Quotes a CSV field and neutralizes spreadsheet formula injection:
+        /// hostnames come from attacker-influenceable reverse-DNS, so a value like
+        /// "=cmd|'/c calc'!A1" must not execute when the CSV is opened in Excel.
+        /// </summary>
+        private static string Csv(string? value)
+        {
+            var s = value ?? "";
+            if (s.Length > 0 && (s[0] == '=' || s[0] == '+' || s[0] == '-' || s[0] == '@'
+                                 || s[0] == '\t' || s[0] == '\r'))
+                s = "'" + s;
+            if (s.Contains(',') || s.Contains('"') || s.Contains('\n') || s.Contains('\r'))
+                s = "\"" + s.Replace("\"", "\"\"") + "\"";
+            return s;
         }
 
         private bool ValidateInputs()

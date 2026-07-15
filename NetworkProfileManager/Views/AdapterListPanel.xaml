@@ -10,7 +10,8 @@
         <TextBlock Text="{DynamicResource Adapters.Header}" Style="{StaticResource HeaderText}"/>
         <ui:Button DockPanel.Dock="Right" HorizontalAlignment="Right"
                    Appearance="Secondary" Padding="8,5"
-                   Command="{Binding RefreshCommand}" ToolTip="{DynamicResource Common.Refresh}">
+                   Command="{Binding RefreshCommand}" ToolTip="{DynamicResource Common.Refresh}"
+                   AutomationProperties.Name="{DynamicResource Common.Refresh}">
           <ui:SymbolIcon Symbol="ArrowSync20" FontSize="14"/>
         </ui:Button>
       </DockPanel>
@@ -88,6 +89,7 @@
                              Tag="{Binding CurrentIp}"
                              Click="CopyIp_Click"
                              ToolTip="{DynamicResource Adapters.CopyIpTooltip}"
+                             AutomationProperties.Name="{DynamicResource Adapters.CopyIpTooltip}"
                              VerticalAlignment="Center"
                              Padding="3,2"
                              Visibility="{Binding IsConnected, Converter={StaticResource BoolToVis}}">

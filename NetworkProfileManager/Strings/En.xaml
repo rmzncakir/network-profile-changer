@@ -13,6 +13,13 @@
     <sys:String x:Key="Common.Copy">Copy</sys:String>
     <sys:String x:Key="Common.Retry">Retry</sys:String>
     <sys:String x:Key="Common.Ready">Ready</sys:String>
+    <sys:String x:Key="Common.Yes">Yes</sys:String>
+
+    <!-- ── Confirmations ── -->
+    <sys:String x:Key="Confirm.DeleteProfileTitle">Delete Profile</sys:String>
+    <sys:String x:Key="Confirm.DeleteProfileMessage">Delete the profile "{0}"?</sys:String>
+    <sys:String x:Key="Confirm.ClearHistoryTitle">Clear History</sys:String>
+    <sys:String x:Key="Confirm.ClearHistoryMessage">All history entries for this adapter will be removed. Continue?</sys:String>
 
     <!-- ── MainWindow ── -->
     <sys:String x:Key="App.Title">Network Profile Manager</sys:String>
@@ -116,6 +123,8 @@
     <sys:String x:Key="Tray.ConnectionUp">Connection established</sys:String>
     <sys:String x:Key="Tray.ConnectionDown">Connection lost</sys:String>
     <sys:String x:Key="Tray.IpChanged">IP address changed</sys:String>
+    <sys:String x:Key="Tray.HintTitle">Running in the background</sys:String>
+    <sys:String x:Key="Tray.HintText">The app keeps running in the system tray. Right-click the tray icon to exit.</sys:String>
 
     <!-- ── Notifications ── -->
     <sys:String x:Key="Notify.Success">Success</sys:String>
@@ -149,6 +158,7 @@
     <sys:String x:Key="Notify.ScanError">Scan Error</sys:String>
     <sys:String x:Key="Csv.SaveTitle">Save as CSV</sys:String>
     <sys:String x:Key="Csv.Filter">CSV file|*.csv</sys:String>
+    <sys:String x:Key="Csv.ExportError">Export failed</sys:String>
     <sys:String x:Key="Status.PingTargetMissing">No target entered.</sys:String>
     <sys:String x:Key="Status.PingResultMs">{0} — {1} ms</sys:String>
     <sys:String x:Key="Status.PingTimeout">{0} — timed out</sys:String>
@@ -167,7 +177,12 @@
     <sys:String x:Key="Error.InvalidIpv4">Invalid IPv4 address: {0}</sys:String>
     <sys:String x:Key="Error.NetshStartFailed">Failed to start netsh.</sys:String>
     <sys:String x:Key="Error.NetshExitCode">netsh exit code: {0}</sys:String>
+    <sys:String x:Key="Error.NetshTimeout">netsh did not respond and was terminated.</sys:String>
+    <sys:String x:Key="Error.ElevationCancelled">Operation cancelled — administrator approval was not granted.</sys:String>
+    <sys:String x:Key="Error.ElevationFailed">Failed to run with administrator privileges.</sys:String>
+    <sys:String x:Key="Error.ElevationTimeout">The elevated operation timed out.</sys:String>
     <sys:String x:Key="Error.EndIpBeforeStart">End IP cannot be lower than start IP.</sys:String>
+    <sys:String x:Key="Error.ScanRangeTooLarge">Scan range is too large (max {0} addresses).</sys:String>
     <sys:String x:Key="Error.MaxProfiles">A maximum of 5 profiles can be saved.</sys:String>
 
     <!-- ── Scanner status ── -->

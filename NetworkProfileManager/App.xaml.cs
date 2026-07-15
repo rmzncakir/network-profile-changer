@@ -10,7 +10,6 @@ using NetworkProfileManager.Models;
 using NetworkProfileManager.Services;
 using NetworkProfileManager.ViewModels;
 using NetworkProfileManager.Views;
-using Newtonsoft.Json;
 using Wpf.Ui.Appearance;
 using Application = System.Windows.Application;
 
@@ -21,12 +20,24 @@ namespace NetworkProfileManager
         private NotifyIcon? _trayIcon;
         private MainWindow? _mainWindow;
         private TrayPopupWindow? _trayPopup;
+        private NetworkMonitorService? _networkMonitor;
         private DateTime _popupLastClosed = DateTime.MinValue;
+        private bool _trayHintShown;
 
         internal bool IsExiting { get; private set; }
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            // Elevated netsh worker mode (--run-netsh <request> <result>):
+            // launched by ElevationHelper via UAC. No UI, no tray — run the
+            // batch and exit with the worker's result code.
+            if (e.Args.Length >= 3 && e.Args[0] == ElevationHelper.WorkerSwitch)
+            {
+                int code = ElevationHelper.RunWorker(e.Args[1], e.Args[2]);
+                Environment.Exit(code);
+                return;
+            }
+
             base.OnStartup(e);
 
             // Migrate legacy data (exe-relative) into LocalAppData on first run.
@@ -38,9 +49,10 @@ namespace NetworkProfileManager
             // DynamicResource lookups resolve to the right culture.
             LanguageManager.Initialize();
 
-            // Startup kaydı yoksa otomatik ekle
-            if (!StartupHelper.IsStartupEnabled())
-                StartupHelper.SetStartup(true);
+            // If startup is enabled but the registered path no longer matches
+            // the current exe (e.g. folder moved), self-heal. Never silently
+            // re-enable startup the user disabled.
+            StartupHelper.RefreshIfEnabled();
 
             bool startMinimized = Array.Exists(e.Args, a => a == "--minimized");
 
@@ -60,6 +72,10 @@ namespace NetworkProfileManager
                 _trayIcon.ShowBalloonTip(3500);
             };
 
+            // Watch adapter up/down/IP-change and surface tray balloons.
+            if (_trayIcon != null)
+                _networkMonitor = new NetworkMonitorService(_trayIcon);
+
             _mainWindow = new MainWindow();
             _mainWindow.Closing += (s, args) =>
             {
@@ -67,6 +83,7 @@ namespace NetworkProfileManager
                 {
                     args.Cancel = true;
                     _mainWindow!.Hide();
+                    ShowTrayHintOnce();
                     return;
                 }
                 if (_trayIcon != null) _trayIcon.Visible = false;
@@ -84,50 +101,29 @@ namespace NetworkProfileManager
 
         protected override void OnExit(ExitEventArgs e)
         {
+            _networkMonitor?.Dispose();
             _trayIcon?.Dispose();
             base.OnExit(e);
         }
 
+        // First time the window is hidden to the tray, tell the user it's still
+        // running there — otherwise closing looks like a full exit.
+        private void ShowTrayHintOnce()
+        {
+            if (_trayHintShown || _trayIcon == null) return;
+            _trayHintShown = true;
+
+            _trayIcon.BalloonTipIcon  = ToolTipIcon.Info;
+            _trayIcon.BalloonTipTitle = Loc.Get("Tray.HintTitle", "Arka planda çalışıyor");
+            _trayIcon.BalloonTipText  = Loc.Get("Tray.HintText",
+                "Uygulama sistem tepsisinde çalışmaya devam ediyor. Çıkmak için tepsi simgesine sağ tıklayın.");
+            _trayIcon.ShowBalloonTip(4000);
+        }
+
         // ── Theme persistence ─────────────────────────────────────────
-        private static string AppSettingsPath =>
-            Path.Combine(NetworkProfileManager.Helpers.AppPaths.DataDirectory, "app_settings.json");
+        private static string LoadSavedTheme() => AppSettingsStore.Get("Theme") ?? "Dark";
 
-        private static string LoadSavedTheme()
-        {
-            try
-            {
-                if (!File.Exists(AppSettingsPath)) return "Dark";
-                var json = File.ReadAllText(AppSettingsPath);
-                var obj = JsonConvert.DeserializeObject<System.Collections.Generic.Dictionary<string, string>>(json);
-                if (obj != null && obj.TryGetValue("Theme", out var t) && !string.IsNullOrEmpty(t))
-                    return t;
-            }
-            catch { }
-            return "Dark";
-        }
-
-        private static void SaveTheme(string themeName)
-        {
-            try
-            {
-                // Merge into existing settings file so we don't clobber Language,
-                // which LanguageManager writes to the same JSON.
-                System.Collections.Generic.Dictionary<string, string> obj;
-                if (File.Exists(AppSettingsPath))
-                {
-                    var existing = File.ReadAllText(AppSettingsPath);
-                    obj = JsonConvert.DeserializeObject<System.Collections.Generic.Dictionary<string, string>>(existing)
-                          ?? new System.Collections.Generic.Dictionary<string, string>();
-                }
-                else
-                {
-                    obj = new System.Collections.Generic.Dictionary<string, string>();
-                }
-                obj["Theme"] = themeName;
-                File.WriteAllText(AppSettingsPath, JsonConvert.SerializeObject(obj, Formatting.Indented));
-            }
-            catch { }
-        }
+        private static void SaveTheme(string themeName) => AppSettingsStore.Set("Theme", themeName);
 
         // ── Theme ─────────────────────────────────────────────────────
         public static string CurrentThemeName { get; private set; } = "Dark";

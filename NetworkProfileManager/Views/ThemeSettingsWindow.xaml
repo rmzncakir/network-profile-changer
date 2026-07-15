@@ -146,7 +146,7 @@
             Padding="12,8">
       <ui:Button Content="{DynamicResource Common.Close}" Appearance="Secondary"
                  HorizontalAlignment="Right" Padding="16,6"
-                 Click="CloseClick"/>
+                 Click="CloseClick" IsCancel="True"/>
     </Border>
   </Grid>
 </ui:FluentWindow>

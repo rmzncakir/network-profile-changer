@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Animation;
 using NetworkProfileManager.Helpers;
@@ -103,11 +104,28 @@ namespace NetworkProfileManager
         private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             if (!(DataContext is MainViewModel vm)) return;
+
+            // Route destructive-action confirmations through the Fluent dialog host.
+            vm.ConfirmHandler = ConfirmAsync;
+
             vm.PropertyChanged += (s, args) =>
             {
                 if (args.PropertyName == nameof(MainViewModel.SelectedAdapter))
                     FadeIn(RightPanel);
             };
+        }
+
+        private async Task<bool> ConfirmAsync(string title, string message)
+        {
+            var dialog = new ContentDialog
+            {
+                Title             = title,
+                Content           = message,
+                PrimaryButtonText = Loc.Get("Common.Yes", "Evet"),
+                CloseButtonText   = Loc.Get("Common.Cancel", "İptal")
+            };
+            var result = await _dialogService.ShowAsync(dialog, System.Threading.CancellationToken.None);
+            return result == ContentDialogResult.Primary;
         }
 
         private static void FadeIn(UIElement el)

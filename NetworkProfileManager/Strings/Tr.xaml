@@ -11,8 +11,15 @@
     <sys:String x:Key="Common.Edit">Düzenle</sys:String>
     <sys:String x:Key="Common.Refresh">Yenile</sys:String>
     <sys:String x:Key="Common.Copy">Kopyala</sys:String>
-    <sys:String x:Key="Common.Retry">Tekrar</sys:String>
+    <sys:String x:Key="Common.Retry">Yeniden Dene</sys:String>
     <sys:String x:Key="Common.Ready">Hazır</sys:String>
+    <sys:String x:Key="Common.Yes">Evet</sys:String>
+
+    <!-- ── Confirmations ── -->
+    <sys:String x:Key="Confirm.DeleteProfileTitle">Profili Sil</sys:String>
+    <sys:String x:Key="Confirm.DeleteProfileMessage">"{0}" profili silinsin mi?</sys:String>
+    <sys:String x:Key="Confirm.ClearHistoryTitle">Geçmişi Temizle</sys:String>
+    <sys:String x:Key="Confirm.ClearHistoryMessage">Bu adaptörün tüm geçmiş kayıtları silinecek. Devam edilsin mi?</sys:String>
 
     <!-- ── MainWindow ── -->
     <sys:String x:Key="App.Title">Network Profile Manager</sys:String>
@@ -116,6 +123,8 @@
     <sys:String x:Key="Tray.ConnectionUp">Bağlantı Kuruldu</sys:String>
     <sys:String x:Key="Tray.ConnectionDown">Bağlantı Kesildi</sys:String>
     <sys:String x:Key="Tray.IpChanged">IP Adresi Değişti</sys:String>
+    <sys:String x:Key="Tray.HintTitle">Arka planda çalışıyor</sys:String>
+    <sys:String x:Key="Tray.HintText">Uygulama sistem tepsisinde çalışmaya devam ediyor. Çıkmak için tepsi simgesine sağ tıklayın.</sys:String>
 
     <!-- ── Notifications ── -->
     <sys:String x:Key="Notify.Success">Başarılı</sys:String>
@@ -149,6 +158,7 @@
     <sys:String x:Key="Notify.ScanError">Tarama Hatası</sys:String>
     <sys:String x:Key="Csv.SaveTitle">CSV Olarak Kaydet</sys:String>
     <sys:String x:Key="Csv.Filter">CSV dosyası|*.csv</sys:String>
+    <sys:String x:Key="Csv.ExportError">Dışa aktarma başarısız</sys:String>
     <sys:String x:Key="Status.PingTargetMissing">Hedef girilmedi.</sys:String>
     <sys:String x:Key="Status.PingResultMs">{0} — {1} ms</sys:String>
     <sys:String x:Key="Status.PingTimeout">{0} — zaman aşımı</sys:String>
@@ -167,7 +177,12 @@
     <sys:String x:Key="Error.InvalidIpv4">Geçersiz IPv4 adresi: {0}</sys:String>
     <sys:String x:Key="Error.NetshStartFailed">netsh başlatılamadı.</sys:String>
     <sys:String x:Key="Error.NetshExitCode">netsh hata kodu: {0}</sys:String>
+    <sys:String x:Key="Error.NetshTimeout">netsh yanıt vermedi ve durduruldu.</sys:String>
+    <sys:String x:Key="Error.ElevationCancelled">İşlem iptal edildi — yönetici onayı verilmedi.</sys:String>
+    <sys:String x:Key="Error.ElevationFailed">Yönetici yetkisiyle çalıştırma başarısız oldu.</sys:String>
+    <sys:String x:Key="Error.ElevationTimeout">Yönetici işlemi zaman aşımına uğradı.</sys:String>
     <sys:String x:Key="Error.EndIpBeforeStart">Bitiş IP başlangıçtan küçük olamaz.</sys:String>
+    <sys:String x:Key="Error.ScanRangeTooLarge">Tarama aralığı çok geniş (en fazla {0} adres).</sys:String>
     <sys:String x:Key="Error.MaxProfiles">Maksimum 5 profil kaydedilebilir.</sys:String>
 
     <!-- ── Scanner status ── -->

@@ -23,11 +23,21 @@ namespace NetworkProfileManager.Services
             IProgress<ScanProgress>? progress = null,
             CancellationToken ct = default)
         {
+            const uint MaxHosts = 65536; // one /16 — guards against OOM on a huge range
+
             uint start = ToUInt(startIp);
             uint end   = ToUInt(endIp);
             if (end < start)
                 throw new ArgumentException(
                     Loc.Get("Error.EndIpBeforeStart", "Bitiş IP başlangıçtan küçük olamaz."));
+
+            if (end - start + 1 > MaxHosts)
+                throw new ArgumentException(
+                    Loc.Format("Error.ScanRangeTooLarge", MaxHosts));
+
+            // Clamp parallelism to a sane, positive window so a bad UI value can't
+            // throw from the SemaphoreSlim ctor or spawn an unbounded flood.
+            maxParallel = Math.Clamp(maxParallel, 1, 256);
 
             int total   = (int)(end - start + 1);
             int current = 0;
@@ -119,7 +129,8 @@ namespace NetworkProfileManager.Services
         private static uint ToUInt(string ip)
         {
             var parts = ip.Split('.');
-            if (parts.Length != 4) throw new FormatException($"Geçersiz IP: {ip}");
+            if (parts.Length != 4)
+                throw new FormatException(Loc.Format("Error.InvalidIpv4", ip));
             return ((uint)int.Parse(parts[0]) << 24)
                  | ((uint)int.Parse(parts[1]) << 16)
                  | ((uint)int.Parse(parts[2]) <<  8)

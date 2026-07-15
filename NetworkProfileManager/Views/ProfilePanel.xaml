@@ -208,12 +208,15 @@
                                FontSize="11" Padding="8,6"
                                Tag="{Binding}"
                                Click="EditProfile_Click"
-                               ToolTip="{DynamicResource Profiles.EditTooltip}">
+                               ToolTip="{DynamicResource Profiles.EditTooltip}"
+                               AutomationProperties.Name="{DynamicResource Profiles.EditTooltip}">
                       <ui:SymbolIcon Symbol="Edit20" FontSize="13"/>
                     </ui:Button>
                     <ui:Button Grid.Column="4"
                                Appearance="Danger"
                                FontSize="11" Padding="8,6"
+                               ToolTip="{DynamicResource Profiles.DeleteTooltip}"
+                               AutomationProperties.Name="{DynamicResource Profiles.DeleteTooltip}"
                                Command="{Binding DataContext.DeleteProfileCommand,
                                          RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                CommandParameter="{Binding}">

@@ -12,7 +12,8 @@
         <ui:Button DockPanel.Dock="Right" HorizontalAlignment="Right"
                    Appearance="Secondary" Padding="8,5"
                    Command="{Binding ClearHistoryCommand}"
-                   ToolTip="{DynamicResource History.ClearTooltip}">
+                   ToolTip="{DynamicResource History.ClearTooltip}"
+                   AutomationProperties.Name="{DynamicResource History.ClearTooltip}">
           <ui:SymbolIcon Symbol="Delete20" FontSize="14"/>
         </ui:Button>
       </DockPanel>
@@ -111,6 +112,7 @@
                       BorderThickness="1"
                       Foreground="{DynamicResource TextBrush}"
                       ToolTip="{DynamicResource History.RevertTooltip}"
+                      AutomationProperties.Name="{DynamicResource History.RevertTooltip}"
                       Command="{Binding DataContext.RevertCommand,
                                 RelativeSource={RelativeSource AncestorType=DataGrid}}"
                       CommandParameter="{Binding}">
