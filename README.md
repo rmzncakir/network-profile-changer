@@ -1,13 +1,15 @@
 # Network Profile Manager
 
+[![Build](https://github.com/rmzncakir/network-profile-changer/actions/workflows/build.yml/badge.svg)](../../actions/workflows/build.yml)
 [![.NET 8](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
 [![WPF](https://img.shields.io/badge/WPF-Windows-0078D6?logo=windows)](https://learn.microsoft.com/dotnet/desktop/wpf/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/rmzncakir/network-profile-changer)](../../releases)
+[![No telemetry](https://img.shields.io/badge/telemetry-none-brightgreen)](SECURITY.md)
 
 Save, switch, and roll back Windows network adapter IP/DNS configurations through a Fluent UI. Up to 5 named profiles per adapter, full history with one-click revert, built-in IP scanner and ping tool.
 
-> **Windows-only.** Uses `netsh` to apply configuration. Requires administrator rights (enforced via app manifest).
+> **Windows-only.** Uses `netsh` to apply configuration. The app itself runs unelevated; it asks for administrator rights only when you apply a change — one UAC prompt per apply. Running it as administrator up front works too and skips the prompt.
 
 ---
 
@@ -31,7 +33,7 @@ Other typical users: IT field technicians, lab/test-bench engineers, anyone runn
 - 🌐 **Profile management** — up to 5 named IP profiles per adapter (Static / DHCP, IP, Subnet, Gateway, Primary/Secondary DNS).
 - ⚡ **One-click apply** — apply a profile or manual settings to the active adapter instantly.
 - ↩️ **Revert from history** — view the last 100 changes and roll back to a previous configuration with one click.
-- 🔍 **IP scanner** — discover active devices on a given IP range via ping/ARP, export results to CSV.
+- 🔍 **IP scanner** — multi-method discovery (ARP + ICMP + TCP), so devices that block ping still show up. Reports how each host was found, its MAC, open ports and a device-type hint (Modbus, S7, EtherNet/IP, OPC UA, RTSP, printer, SMB/RDP…). Optional monitoring mode notifies you when a new device joins. CSV export.
 - 📡 **Ping tool** — a continuous ping window for connectivity testing.
 - 🔔 **Live notifications** — system-tray balloon when adapter IP changes or connection drops.
 - 🎨 **3 themes** — Dark (default), Dark Blue, Light.
@@ -63,7 +65,7 @@ There is **no auto-updater**. Check this repo's [Releases](../../releases) page 
 ## System requirements
 
 - Windows 10 (build 1809+) or Windows 11
-- Administrator rights (required by `netsh` — handled by the app manifest)
+- Administrator rights when applying a change (`netsh` requires them; the app requests elevation per apply)
 - Self-contained build — no .NET runtime install required
 
 ---
@@ -103,7 +105,19 @@ To uninstall completely, delete the folder above and remove the extracted exe di
 - **Strict IPv4 validation** — canonical dotted-quad form required; shorthand like `192.168.1` (which `IPAddress.TryParse` accepts as `192.168.0.1`) is rejected to prevent silent misconfiguration.
 - **Adapter-name sanitization** — control characters, quotes, CR/LF, and null bytes are rejected.
 - **Path-traversal sanitization** — profile/history filenames are sanitized against adapter IDs.
-- **One UAC prompt** — the app runs as administrator from launch via manifest; no per-action elevation loop.
+- **Least privilege by default** — the app runs as `asInvoker`. It elevates only to apply a
+  change, batching the whole netsh sequence into a single UAC prompt. Running the app
+  itself as administrator is supported and simply skips the prompt.
+- **Restricted elevated worker** — the elevated helper accepts only
+  `interface ip set address`, `set dns` and `add dns`. Every other command, and any
+  argument containing control characters or quotes, is refused. Covered by unit tests.
+- **CSV injection neutralized** — scan results include hostnames from reverse DNS, which
+  an attacker can influence; fields beginning `= + - @` are escaped before export.
+
+> **Note on install location.** Because releases ship as a zip, the app usually ends up in a
+> user-writable folder. Any program already running as your user could drop a malicious DLL
+> beside the executable and have it loaded when you approve the UAC prompt. Extracting to a
+> location only administrators can write to (e.g. under `C:\Program Files\`) avoids this.
 
 To report a vulnerability, see [SECURITY.md](SECURITY.md).
 
