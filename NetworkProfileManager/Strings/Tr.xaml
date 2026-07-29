@@ -98,6 +98,17 @@
     <sys:String x:Key="Monitor.Interval">Dakika</sys:String>
     <sys:String x:Key="Monitor.Started">İzleme açık — her {0} dakikada bir taranacak.</sys:String>
     <sys:String x:Key="Monitor.NewDeviceTitle">Yeni cihaz bulundu</sys:String>
+    <sys:String x:Key="Profiles.ExportTitle">Profilleri Dışa Aktar</sys:String>
+    <sys:String x:Key="Profiles.ImportTitle">Profilleri İçe Aktar</sys:String>
+    <sys:String x:Key="Profiles.ExportTooltip">Profilleri JSON olarak dışa aktar</sys:String>
+    <sys:String x:Key="Profiles.ImportTooltip">JSON dosyasından profil içe aktar</sys:String>
+    <sys:String x:Key="Profiles.JsonFilter">JSON dosyası|*.json</sys:String>
+    <sys:String x:Key="Status.ProfilesExported">{0} profil dışa aktarıldı.</sys:String>
+    <sys:String x:Key="Status.ProfilesImported">{0} profil içe aktarıldı, {1} atlandı.</sys:String>
+    <sys:String x:Key="Status.ImportEmpty">Dosyada geçerli profil bulunamadı.</sys:String>
+    <sys:String x:Key="EditBar.Presets">Hazır ayar</sys:String>
+    <sys:String x:Key="EditBar.PresetsTooltip">Üretici alt ağına göre alanları doldurur. Uygulamak için yine "Uygula"ya basmanız gerekir.</sys:String>
+    <sys:String x:Key="Status.PresetLoaded">"{0}" hazır ayarı yüklendi — kontrol edip Uygula'ya basın.</sys:String>
     <sys:String x:Key="Scanner.UseTcpProbeTooltip">TCP port yoklaması — alt ağ dışı cihazları bulur ve cihaz tipini tahmin eder (Modbus, S7, RTSP…).</sys:String>
     <sys:String x:Key="Scanner.StatusOnline">✓ Online</sys:String>
     <sys:String x:Key="Scanner.StatusOffline">— Offline</sys:String>

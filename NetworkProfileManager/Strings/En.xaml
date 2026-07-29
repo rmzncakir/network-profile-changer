@@ -98,6 +98,17 @@
     <sys:String x:Key="Monitor.Interval">Minutes</sys:String>
     <sys:String x:Key="Monitor.Started">Monitoring on — re-scanning every {0} min.</sys:String>
     <sys:String x:Key="Monitor.NewDeviceTitle">New device found</sys:String>
+    <sys:String x:Key="Profiles.ExportTitle">Export Profiles</sys:String>
+    <sys:String x:Key="Profiles.ImportTitle">Import Profiles</sys:String>
+    <sys:String x:Key="Profiles.ExportTooltip">Export profiles as JSON</sys:String>
+    <sys:String x:Key="Profiles.ImportTooltip">Import profiles from a JSON file</sys:String>
+    <sys:String x:Key="Profiles.JsonFilter">JSON file|*.json</sys:String>
+    <sys:String x:Key="Status.ProfilesExported">Exported {0} profile(s).</sys:String>
+    <sys:String x:Key="Status.ProfilesImported">Imported {0} profile(s), skipped {1}.</sys:String>
+    <sys:String x:Key="Status.ImportEmpty">No valid profiles found in the file.</sys:String>
+    <sys:String x:Key="EditBar.Presets">Preset</sys:String>
+    <sys:String x:Key="EditBar.PresetsTooltip">Fills the fields for a vendor's usual subnet. You still press Apply to commit it.</sys:String>
+    <sys:String x:Key="Status.PresetLoaded">Preset "{0}" loaded — review it, then press Apply.</sys:String>
     <sys:String x:Key="Scanner.UseTcpProbeTooltip">TCP port probe — finds off-subnet devices and guesses the device type (Modbus, S7, RTSP…).</sys:String>
     <sys:String x:Key="Scanner.StatusOnline">✓ Online</sys:String>
     <sys:String x:Key="Scanner.StatusOffline">— Offline</sys:String>

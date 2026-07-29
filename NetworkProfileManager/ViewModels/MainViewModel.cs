@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -58,6 +59,12 @@ namespace NetworkProfileManager.ViewModels
         public ICommand DeleteProfileCommand { get; }
         public ICommand RevertCommand { get; }
         public ICommand ClearHistoryCommand { get; }
+        public ICommand ApplyPresetCommand { get; }
+        public ICommand ExportProfilesCommand { get; }
+        public ICommand ImportProfilesCommand { get; }
+
+        /// <summary>Vendor subnet shortcuts shown in the edit bar's preset menu.</summary>
+        public IReadOnlyList<VendorPreset> VendorPresets => VendorPreset.All;
 
         public MainViewModel()
         {
@@ -79,6 +86,15 @@ namespace NetworkProfileManager.ViewModels
                 p => p is HistoryEntry h && (h.WasDhcp || !string.IsNullOrEmpty(h.OldIp)) && !IsLoading);
             ClearHistoryCommand = new RelayCommand(
                 async _ => await ClearHistoryAsync(),
+                _ => SelectedAdapter != null && !IsLoading);
+            ApplyPresetCommand = new RelayCommand(
+                p => ApplyPreset(p as VendorPreset),
+                _ => SelectedAdapter != null && !IsLoading);
+            ExportProfilesCommand = new RelayCommand(
+                _ => ExportProfiles(),
+                _ => SelectedAdapter != null && SelectedAdapter.Profiles.Count > 0);
+            ImportProfilesCommand = new RelayCommand(
+                _ => ImportProfiles(),
                 _ => SelectedAdapter != null && !IsLoading);
 
             Refresh();
@@ -256,6 +272,151 @@ namespace NetworkProfileManager.ViewModels
             _profileRepo.Save(adapter.Info.Id,
                 adapter.Profiles.Select(p => p.Model).ToList());
             NotificationService.Info(Helpers.Loc.Format("Status.ProfileDeleted", pvm.Name));
+        }
+
+        // ── Profile import / export ──────────────────────────────────
+
+        /// <summary>Writes the selected adapter's profiles to a JSON file the user picks.</summary>
+        private void ExportProfiles()
+        {
+            var adapter = SelectedAdapter;
+            if (adapter == null || adapter.Profiles.Count == 0) return;
+
+            var dlg = new Microsoft.Win32.SaveFileDialog
+            {
+                Title      = Helpers.Loc.Get("Profiles.ExportTitle", "Profilleri Dışa Aktar"),
+                FileName   = $"profiles_{DateTime.Now:yyyyMMdd}.json",
+                DefaultExt = ".json",
+                Filter     = Helpers.Loc.Get("Profiles.JsonFilter", "JSON dosyası|*.json")
+            };
+            if (dlg.ShowDialog() != true) return;
+
+            try
+            {
+                var models = adapter.Profiles.Select(p => p.Model).ToList();
+                System.IO.File.WriteAllText(dlg.FileName,
+                    Newtonsoft.Json.JsonConvert.SerializeObject(models, Newtonsoft.Json.Formatting.Indented),
+                    System.Text.Encoding.UTF8);
+
+                string msg = Helpers.Loc.Format("Status.ProfilesExported", models.Count);
+                StatusMessage = msg;
+                NotificationService.Success(msg);
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Error(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Adds profiles from a JSON file. Imported entries are validated the same way
+        /// hand-typed ones are — a file is untrusted input, and an invalid address here
+        /// would only fail later at netsh with a far less obvious message.
+        /// </summary>
+        private void ImportProfiles()
+        {
+            var adapter = SelectedAdapter;
+            if (adapter == null) return;
+
+            var dlg = new Microsoft.Win32.OpenFileDialog
+            {
+                Title      = Helpers.Loc.Get("Profiles.ImportTitle", "Profilleri İçe Aktar"),
+                DefaultExt = ".json",
+                Filter     = Helpers.Loc.Get("Profiles.JsonFilter", "JSON dosyası|*.json")
+            };
+            if (dlg.ShowDialog() != true) return;
+
+            try
+            {
+                var json = System.IO.File.ReadAllText(dlg.FileName);
+                var incoming = Newtonsoft.Json.JsonConvert.DeserializeObject<List<IpProfile>>(json);
+                if (incoming == null || incoming.Count == 0)
+                {
+                    NotificationService.Warning(
+                        Helpers.Loc.Get("Status.ImportEmpty", "Dosyada profil bulunamadı."));
+                    return;
+                }
+
+                int added = 0, skipped = 0;
+                foreach (var p in incoming)
+                {
+                    if (adapter.Profiles.Count >= MaxProfilesPerAdapter) { skipped++; continue; }
+                    if (string.IsNullOrWhiteSpace(p.Name)) { skipped++; continue; }
+                    if (adapter.Profiles.Any(existing =>
+                            string.Equals(existing.Name, p.Name, StringComparison.OrdinalIgnoreCase)))
+                    { skipped++; continue; }
+                    if (!IsImportedProfileValid(p)) { skipped++; continue; }
+
+                    adapter.Profiles.Add(new ProfileViewModel(p));
+                    added++;
+                }
+
+                if (added > 0)
+                    _profileRepo.Save(adapter.Info.Id,
+                        adapter.Profiles.Select(p => p.Model).ToList());
+
+                string msg = Helpers.Loc.Format("Status.ProfilesImported", added, skipped);
+                StatusMessage = msg;
+                if (added > 0) NotificationService.Success(msg);
+                else NotificationService.Warning(msg);
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Error(ex.Message);
+            }
+        }
+
+        private static bool IsImportedProfileValid(IpProfile p)
+        {
+            if (p.IsDhcp) return true;
+            try
+            {
+                NetworkService.EnsureValidIp(p.IpAddress,  nameof(p.IpAddress));
+                NetworkService.EnsureValidIp(p.SubnetMask, nameof(p.SubnetMask));
+                if (!string.IsNullOrWhiteSpace(p.Gateway))
+                    NetworkService.EnsureValidIp(p.Gateway, nameof(p.Gateway));
+                if (!string.IsNullOrWhiteSpace(p.PrimaryDns))
+                    NetworkService.EnsureValidIp(p.PrimaryDns, nameof(p.PrimaryDns));
+                if (!string.IsNullOrWhiteSpace(p.SecondaryDns))
+                    NetworkService.EnsureValidIp(p.SecondaryDns, nameof(p.SecondaryDns));
+                return true;
+            }
+            catch { return false; }
+        }
+
+        /// <summary>Ctrl+1..5 — applies the Nth profile of the selected adapter.</summary>
+        public async Task ApplyProfileByIndexAsync(int index)
+        {
+            var adapter = SelectedAdapter;
+            if (adapter == null || IsLoading) return;
+            if (index < 0 || index >= adapter.Profiles.Count) return;
+            await ApplyProfileAsync(adapter.Profiles[index]);
+        }
+
+        // ── Vendor preset ────────────────────────────────────────────
+        /// <summary>
+        /// Fills the edit fields from a preset. Deliberately does NOT apply — the
+        /// engineer still reviews the address and presses Apply, so a mis-clicked
+        /// preset can never drop the adapter off its current network by itself.
+        /// </summary>
+        private void ApplyPreset(VendorPreset? preset)
+        {
+            var adapter = SelectedAdapter;
+            if (preset == null || adapter == null) return;
+
+            if (preset.IsDhcp)
+            {
+                adapter.EditIsDhcp = true;
+            }
+            else
+            {
+                adapter.EditIsStatic = true;
+                adapter.EditIp       = preset.IpAddress;
+                adapter.EditSubnet   = preset.SubnetMask;
+                adapter.EditGateway  = preset.Gateway;
+            }
+
+            StatusMessage = Helpers.Loc.Format("Status.PresetLoaded", preset.Name);
         }
 
         private async Task<bool> ConfirmAsync(string title, string message)

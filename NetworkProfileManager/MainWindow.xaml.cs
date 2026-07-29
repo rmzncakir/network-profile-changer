@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media.Animation;
 using NetworkProfileManager.Helpers;
 using NetworkProfileManager.ViewModels;
@@ -19,6 +20,7 @@ namespace NetworkProfileManager
         {
             InitializeComponent();
             DataContextChanged += OnDataContextChanged;
+            RegisterProfileHotkeys();
 
             // Fix maximized window overlapping the taskbar
             StateChanged += (s, e) =>
@@ -113,6 +115,29 @@ namespace NetworkProfileManager
                 if (args.PropertyName == nameof(MainViewModel.SelectedAdapter))
                     FadeIn(RightPanel);
             };
+        }
+
+        /// <summary>
+        /// Ctrl+1..5 apply the selected adapter's Nth saved profile — the whole point of
+        /// the app for someone hopping between machine networks all day.
+        /// </summary>
+        private void RegisterProfileHotkeys()
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                int index = i;   // captured per iteration
+                var command = new NetworkProfileManager.Commands.RelayCommand(
+                    async _ =>
+                    {
+                        if (DataContext is MainViewModel vm)
+                            await vm.ApplyProfileByIndexAsync(index);
+                    });
+
+                InputBindings.Add(new KeyBinding(
+                    command,
+                    Key.D1 + index,
+                    ModifierKeys.Control));
+            }
         }
 
         private async Task<bool> ConfirmAsync(string title, string message)

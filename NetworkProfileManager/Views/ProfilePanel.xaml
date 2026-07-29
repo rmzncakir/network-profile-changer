@@ -13,6 +13,20 @@
           <Run Text="{Binding SelectedAdapter.Name, FallbackValue='', Mode=OneWay}"/>
         </TextBlock>
         <ui:Button DockPanel.Dock="Right"
+                   Appearance="Transparent" Padding="7,5" Margin="4,0,0,0"
+                   Command="{Binding ImportProfilesCommand}"
+                   ToolTip="{DynamicResource Profiles.ImportTooltip}"
+                   AutomationProperties.Name="{DynamicResource Profiles.ImportTooltip}">
+          <ui:SymbolIcon Symbol="ArrowImport20" FontSize="13"/>
+        </ui:Button>
+        <ui:Button DockPanel.Dock="Right"
+                   Appearance="Transparent" Padding="7,5" Margin="4,0,0,0"
+                   Command="{Binding ExportProfilesCommand}"
+                   ToolTip="{DynamicResource Profiles.ExportTooltip}"
+                   AutomationProperties.Name="{DynamicResource Profiles.ExportTooltip}">
+          <ui:SymbolIcon Symbol="ArrowExportLtr20" FontSize="13"/>
+        </ui:Button>
+        <ui:Button DockPanel.Dock="Right"
                    HorizontalAlignment="Right"
                    Appearance="Secondary" Padding="8,5"
                    Click="AddProfile_Click">

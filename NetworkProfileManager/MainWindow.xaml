@@ -126,6 +126,26 @@
                          Margin="0,0,20,0"/>
             <RadioButton Content="{DynamicResource EditBar.Static}"
                          IsChecked="{Binding SelectedAdapter.EditIsStatic, FallbackValue=True}"/>
+            <ui:DropDownButton Content="{DynamicResource EditBar.Presets}"
+                               Appearance="Secondary" Margin="20,0,0,0"
+                               Padding="10,3" FontSize="11"
+                               Icon="{ui:SymbolIcon Flash20}"
+                               ToolTip="{DynamicResource EditBar.PresetsTooltip}">
+              <ui:DropDownButton.Flyout>
+                <ContextMenu ItemsSource="{Binding VendorPresets}">
+                  <ContextMenu.ItemContainerStyle>
+                    <Style TargetType="MenuItem">
+                      <Setter Property="Header" Value="{Binding Name}"/>
+                      <Setter Property="InputGestureText" Value="{Binding Description}"/>
+                      <Setter Property="Command"
+                              Value="{Binding DataContext.ApplyPresetCommand,
+                                      RelativeSource={RelativeSource AncestorType=Window}}"/>
+                      <Setter Property="CommandParameter" Value="{Binding}"/>
+                    </Style>
+                  </ContextMenu.ItemContainerStyle>
+                </ContextMenu>
+              </ui:DropDownButton.Flyout>
+            </ui:DropDownButton>
           </StackPanel>
           <WrapPanel Orientation="Horizontal">
             <StackPanel Orientation="Horizontal" Margin="0,0,10,4">
