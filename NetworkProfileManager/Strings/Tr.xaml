@@ -85,9 +85,15 @@
     <sys:String x:Key="Scanner.ApplyIp">IP'yi Uygula</sys:String>
     <sys:String x:Key="Scanner.ColumnIp">IP Adresi</sys:String>
     <sys:String x:Key="Scanner.ColumnStatus">Durum</sys:String>
+    <sys:String x:Key="Scanner.ColumnFoundBy">Bulunma</sys:String>
     <sys:String x:Key="Scanner.ColumnResponseTime">Süre (ms)</sys:String>
     <sys:String x:Key="Scanner.ColumnHostname">Hostname</sys:String>
+    <sys:String x:Key="Scanner.ColumnDeviceType">Cihaz Tipi</sys:String>
     <sys:String x:Key="Scanner.ColumnMac">MAC</sys:String>
+    <sys:String x:Key="Scanner.UseArp">ARP</sys:String>
+    <sys:String x:Key="Scanner.UseArpTooltip">ARP taraması — güvenlik duvarı ICMP'yi engelleyen cihazları da bulur (yerel alt ağ).</sys:String>
+    <sys:String x:Key="Scanner.UseTcpProbe">Port yoklama</sys:String>
+    <sys:String x:Key="Scanner.UseTcpProbeTooltip">TCP port yoklaması — alt ağ dışı cihazları bulur ve cihaz tipini tahmin eder (Modbus, S7, RTSP…).</sys:String>
     <sys:String x:Key="Scanner.StatusOnline">✓ Online</sys:String>
     <sys:String x:Key="Scanner.StatusOffline">— Offline</sys:String>
 

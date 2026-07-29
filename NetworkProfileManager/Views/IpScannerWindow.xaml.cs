@@ -44,7 +44,8 @@ namespace NetworkProfileManager.Views
         {
             if (_vm.SelectedResult == null) return;
             var r = _vm.SelectedResult;
-            string text = $"{r.IpAddress}\t{(r.IsOnline ? "Online" : "Offline")}\t{r.ResponseTime}ms\t{r.HostName}\t{r.MacAddress}";
+            string text = $"{r.IpAddress}\t{(r.IsOnline ? "Online" : "Offline")}\t{r.FoundByLabel}\t" +
+                          $"{r.ResponseTimeLabel}\t{r.HostName}\t{r.DeviceType}\t{r.MacAddress}";
             Clipboard.SetText(text);
             _vm.StatusText = $"Kopyalandı: {r.IpAddress}";
         }

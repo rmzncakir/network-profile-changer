@@ -22,8 +22,10 @@ namespace NetworkProfileManager.ViewModels
     {
         public string StartIp   { get; set; } = "";
         public string EndIp     { get; set; } = "";
-        public int    TimeoutMs { get; set; } = 500;
-        public int    MaxParallel { get; set; } = 50;
+        public int    TimeoutMs { get; set; } = 1000;
+        public int    MaxParallel { get; set; } = 128;
+        public bool   UseArp      { get; set; } = true;
+        public bool   UseTcpProbe { get; set; } = true;
     }
 
     public class IpScannerViewModel : INotifyPropertyChanged
@@ -38,8 +40,10 @@ namespace NetworkProfileManager.ViewModels
 
         private string _startIp   = "";
         private string _endIp     = "";
-        private int    _timeout   = 500;
-        private int    _parallel  = 50;
+        private int    _timeout   = 1000;
+        private int    _parallel  = 128;
+        private bool   _useArp      = true;
+        private bool   _useTcpProbe = true;
         private bool   _scanning;
         private int    _progress;
         private int    _total;
@@ -64,6 +68,18 @@ namespace NetworkProfileManager.ViewModels
         {
             get => _parallel;
             set { _parallel = value; OnPropertyChanged(); SaveSettings(); }
+        }
+        /// <summary>ARP sweep — the main reason firewalled hosts appear at all.</summary>
+        public bool UseArp
+        {
+            get => _useArp;
+            set { _useArp = value; OnPropertyChanged(); SaveSettings(); }
+        }
+        /// <summary>TCP port probe — finds off-subnet hosts and identifies device type.</summary>
+        public bool UseTcpProbe
+        {
+            get => _useTcpProbe;
+            set { _useTcpProbe = value; OnPropertyChanged(); SaveSettings(); }
         }
         public bool IsScanning
         {
@@ -119,10 +135,12 @@ namespace NetworkProfileManager.ViewModels
                 var json = File.ReadAllText(SettingsPath);
                 var s = JsonConvert.DeserializeObject<ScannerSettings>(json);
                 if (s == null) return;
-                _startIp  = s.StartIp;
-                _endIp    = s.EndIp;
-                _timeout  = s.TimeoutMs;
-                _parallel = s.MaxParallel;
+                _startIp     = s.StartIp;
+                _endIp       = s.EndIp;
+                _timeout     = s.TimeoutMs;
+                _parallel    = s.MaxParallel;
+                _useArp      = s.UseArp;
+                _useTcpProbe = s.UseTcpProbe;
             }
             catch { /* ignore corrupt settings */ }
         }
@@ -133,10 +151,12 @@ namespace NetworkProfileManager.ViewModels
             {
                 var s = new ScannerSettings
                 {
-                    StartIp    = _startIp,
-                    EndIp      = _endIp,
-                    TimeoutMs  = _timeout,
-                    MaxParallel = _parallel
+                    StartIp     = _startIp,
+                    EndIp       = _endIp,
+                    TimeoutMs   = _timeout,
+                    MaxParallel = _parallel,
+                    UseArp      = _useArp,
+                    UseTcpProbe = _useTcpProbe
                 };
                 File.WriteAllText(SettingsPath, JsonConvert.SerializeObject(s, Formatting.Indented));
             }
@@ -167,7 +187,14 @@ namespace NetworkProfileManager.ViewModels
 
             try
             {
-                await _svc.ScanRangeAsync(StartIp, EndIp, TimeoutMs, MaxParallel, prog, _cts.Token);
+                var options = new ScanOptions
+                {
+                    TimeoutMs   = TimeoutMs,
+                    MaxParallel = MaxParallel,
+                    UseArp      = UseArp,
+                    UseTcpProbe = UseTcpProbe
+                };
+                await _svc.ScanRangeAsync(StartIp, EndIp, options, prog, _cts.Token);
                 StatusText = Loc.Format("Status.ScanComplete", Results.Count);
             }
             catch (OperationCanceledException)
@@ -206,14 +233,17 @@ namespace NetworkProfileManager.ViewModels
             try
             {
                 var sb = new StringBuilder();
-                sb.AppendLine("IP,Status,Time(ms),Hostname,MAC");
+                sb.AppendLine("IP,Status,FoundBy,Time(ms),Hostname,MAC,DeviceType,OpenPorts");
                 foreach (var r in Results)
                     sb.AppendLine(string.Join(",",
                         Csv(r.IpAddress),
                         r.IsOnline ? "Online" : "Offline",
-                        r.ResponseTime.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                        Csv(r.FoundByLabel),
+                        Csv(r.ResponseTimeLabel),
                         Csv(r.HostName),
-                        Csv(r.MacAddress)));
+                        Csv(r.MacAddress),
+                        Csv(r.DeviceType),
+                        Csv(r.OpenPorts)));
 
                 File.WriteAllText(dlg.FileName, sb.ToString(), Encoding.UTF8);
                 StatusText = Loc.Format("Status.CsvExported", dlg.FileName);

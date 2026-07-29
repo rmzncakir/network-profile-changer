@@ -61,9 +61,19 @@
         <ui:NumberBox Width="110" Margin="0,0,14,4"
                       PlaceholderText="{DynamicResource Scanner.MaxParallel}"
                       Value="{Binding MaxParallel, Mode=TwoWay}"
-                      Minimum="1" Maximum="200" SmallChange="10"
+                      Minimum="1" Maximum="128" SmallChange="16"
                       SpinButtonPlacementMode="Inline"
                       IsEnabled="{Binding IsNotScanning}"/>
+        <CheckBox Content="{DynamicResource Scanner.UseArp}"
+                  ToolTip="{DynamicResource Scanner.UseArpTooltip}"
+                  IsChecked="{Binding UseArp, Mode=TwoWay}"
+                  IsEnabled="{Binding IsNotScanning}"
+                  VerticalAlignment="Center" Margin="0,0,10,4"/>
+        <CheckBox Content="{DynamicResource Scanner.UseTcpProbe}"
+                  ToolTip="{DynamicResource Scanner.UseTcpProbeTooltip}"
+                  IsChecked="{Binding UseTcpProbe, Mode=TwoWay}"
+                  IsEnabled="{Binding IsNotScanning}"
+                  VerticalAlignment="Center" Margin="0,0,14,4"/>
         <ui:Button Appearance="Primary" Margin="0,0,6,4"
                    Command="{Binding StartCommand}">
           <StackPanel Orientation="Horizontal">
@@ -193,10 +203,12 @@
             </DataTemplate>
           </DataGridTemplateColumn.CellTemplate>
         </DataGridTemplateColumn>
-        <DataGridTextColumn Header="{DynamicResource Scanner.ColumnStatus}"       Binding="{Binding IsOnline, Converter={StaticResource BoolToStr}, ConverterParameter='✓ Online|— Offline'}" Width="95"/>
-        <DataGridTextColumn Header="{DynamicResource Scanner.ColumnResponseTime}"  Binding="{Binding ResponseTime}" Width="85"/>
-        <DataGridTextColumn Header="{DynamicResource Scanner.ColumnHostname}"      Binding="{Binding HostName}"     Width="*"/>
-        <DataGridTextColumn Header="{DynamicResource Scanner.ColumnMac}"           Binding="{Binding MacAddress}"   Width="150" FontFamily="Consolas" FontSize="11"/>
+        <DataGridTextColumn Header="{DynamicResource Scanner.ColumnStatus}"        Binding="{Binding IsOnline, Converter={StaticResource BoolToStr}, ConverterParameter='✓ Online|— Offline'}" Width="95"/>
+        <DataGridTextColumn Header="{DynamicResource Scanner.ColumnFoundBy}"       Binding="{Binding FoundByLabel}"      Width="90"  FontSize="11"/>
+        <DataGridTextColumn Header="{DynamicResource Scanner.ColumnResponseTime}"  Binding="{Binding ResponseTimeLabel}" Width="85"/>
+        <DataGridTextColumn Header="{DynamicResource Scanner.ColumnHostname}"      Binding="{Binding HostName}"          Width="*"/>
+        <DataGridTextColumn Header="{DynamicResource Scanner.ColumnDeviceType}"    Binding="{Binding DeviceType}"        Width="160" FontSize="11"/>
+        <DataGridTextColumn Header="{DynamicResource Scanner.ColumnMac}"           Binding="{Binding MacAddress}"        Width="150" FontFamily="Consolas" FontSize="11"/>
       </DataGrid.Columns>
     </DataGrid>
 
