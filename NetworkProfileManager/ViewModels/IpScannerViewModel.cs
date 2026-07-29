@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
@@ -26,6 +27,10 @@ namespace NetworkProfileManager.ViewModels
         public int    MaxParallel { get; set; } = 128;
         public bool   UseArp      { get; set; } = true;
         public bool   UseTcpProbe { get; set; } = true;
+
+        /// <summary>Interval only — monitoring itself is deliberately not persisted, so
+        /// reopening the window never silently resumes background scanning.</summary>
+        public int    MonitorIntervalMinutes { get; set; } = 5;
     }
 
     public class IpScannerViewModel : INotifyPropertyChanged
@@ -45,6 +50,12 @@ namespace NetworkProfileManager.ViewModels
         private bool   _useArp      = true;
         private bool   _useTcpProbe = true;
         private bool   _scanning;
+        private bool   _isMonitoring;
+        private int    _monitorMinutes = 5;
+        private bool   _baselineTaken;
+        private CancellationTokenSource? _monitorCts;
+        private readonly HashSet<string> _knownDevices =
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private int    _progress;
         private int    _total;
         private string _statusText = Loc.Get("Common.Ready", "Hazır");
@@ -80,6 +91,26 @@ namespace NetworkProfileManager.ViewModels
         {
             get => _useTcpProbe;
             set { _useTcpProbe = value; OnPropertyChanged(); SaveSettings(); }
+        }
+
+        /// <summary>Re-sweeps on an interval and notifies when a host appears that wasn't there before.</summary>
+        public bool IsMonitoring
+        {
+            get => _isMonitoring;
+            set
+            {
+                if (_isMonitoring == value) return;
+                _isMonitoring = value;
+                OnPropertyChanged();
+                SaveSettings();
+                if (value) StartMonitoring(); else StopMonitoring();
+            }
+        }
+
+        public int MonitorIntervalMinutes
+        {
+            get => _monitorMinutes;
+            set { _monitorMinutes = value; OnPropertyChanged(); SaveSettings(); }
         }
         public bool IsScanning
         {
@@ -141,6 +172,7 @@ namespace NetworkProfileManager.ViewModels
                 _parallel    = s.MaxParallel;
                 _useArp      = s.UseArp;
                 _useTcpProbe = s.UseTcpProbe;
+                _monitorMinutes = Math.Max(1, s.MonitorIntervalMinutes);
             }
             catch { /* ignore corrupt settings */ }
         }
@@ -156,14 +188,22 @@ namespace NetworkProfileManager.ViewModels
                     TimeoutMs   = _timeout,
                     MaxParallel = _parallel,
                     UseArp      = _useArp,
-                    UseTcpProbe = _useTcpProbe
+                    UseTcpProbe = _useTcpProbe,
+                    MonitorIntervalMinutes = _monitorMinutes
                 };
                 File.WriteAllText(SettingsPath, JsonConvert.SerializeObject(s, Formatting.Indented));
             }
             catch { /* best-effort */ }
         }
 
-        private async void StartScan()
+        private async void StartScan() => await RunScanAsync(announceNew: false);
+
+        /// <summary>
+        /// Runs one sweep. When <paramref name="announceNew"/> is set (monitoring mode)
+        /// any host absent from the previous sweep raises a notification instead of
+        /// silently appearing in the grid.
+        /// </summary>
+        private async Task RunScanAsync(bool announceNew)
         {
             if (!ValidateInputs()) return;
 
@@ -196,6 +236,7 @@ namespace NetworkProfileManager.ViewModels
                 };
                 await _svc.ScanRangeAsync(StartIp, EndIp, options, prog, _cts.Token);
                 StatusText = Loc.Format("Status.ScanComplete", Results.Count);
+                ReconcileKnownDevices(announceNew);
             }
             catch (OperationCanceledException)
             {
@@ -217,6 +258,77 @@ namespace NetworkProfileManager.ViewModels
         {
             _cts?.Cancel();
             StatusText = Loc.Get("Status.ScanStopping", "Durduruluyor…");
+        }
+
+        // ── Monitoring ─────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Compares the sweep just finished against the previous one. Devices are keyed
+        /// by MAC where known, because DHCP can hand the same device a different address
+        /// — keying on IP alone would report a lease change as a new device.
+        /// </summary>
+        private void ReconcileKnownDevices(bool announceNew)
+        {
+            var current = Results.Where(r => r.IsOnline).ToList();
+            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var r in current)
+            {
+                string key = string.IsNullOrEmpty(r.MacAddress) ? r.IpAddress : r.MacAddress;
+                seen.Add(key);
+
+                if (announceNew && _baselineTaken && !_knownDevices.Contains(key))
+                {
+                    var detail = string.IsNullOrEmpty(r.DeviceType) ? r.MacAddress : r.DeviceType;
+                    NotificationService.Info(
+                        string.IsNullOrEmpty(detail) ? r.IpAddress : $"{r.IpAddress} — {detail}",
+                        Loc.Get("Monitor.NewDeviceTitle", "Yeni cihaz bulundu"));
+                }
+            }
+
+            _knownDevices.Clear();
+            foreach (var k in seen) _knownDevices.Add(k);
+            _baselineTaken = true;
+        }
+
+        private void StartMonitoring()
+        {
+            StopMonitoring();
+            _monitorCts = new CancellationTokenSource();
+            _ = MonitorLoopAsync(_monitorCts.Token);
+            StatusText = Loc.Format("Monitor.Started", MonitorIntervalMinutes);
+        }
+
+        private void StopMonitoring()
+        {
+            _monitorCts?.Cancel();
+            _monitorCts?.Dispose();
+            _monitorCts = null;
+        }
+
+        private async Task MonitorLoopAsync(CancellationToken ct)
+        {
+            while (!ct.IsCancellationRequested)
+            {
+                try
+                {
+                    await Task.Delay(TimeSpan.FromMinutes(Math.Max(1, MonitorIntervalMinutes)), ct)
+                              .ConfigureAwait(true);
+                }
+                catch (OperationCanceledException) { return; }
+
+                // Never collide with a sweep the user kicked off by hand.
+                if (ct.IsCancellationRequested || IsScanning) continue;
+
+                await RunScanAsync(announceNew: true);
+            }
+        }
+
+        /// <summary>Called by the view when the window closes, so the loop cannot outlive it.</summary>
+        public void Shutdown()
+        {
+            StopMonitoring();
+            _cts?.Cancel();
         }
 
         private void ExportCsv()

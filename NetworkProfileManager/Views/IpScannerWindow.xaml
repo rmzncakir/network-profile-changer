@@ -81,6 +81,15 @@
             <TextBlock Text="{DynamicResource Scanner.StartButton}"/>
           </StackPanel>
         </ui:Button>
+        <CheckBox Content="{DynamicResource Monitor.Enable}"
+                  ToolTip="{DynamicResource Monitor.EnableTooltip}"
+                  IsChecked="{Binding IsMonitoring, Mode=TwoWay}"
+                  VerticalAlignment="Center" Margin="0,0,6,4"/>
+        <ui:NumberBox Width="95" Margin="0,0,14,4"
+                      PlaceholderText="{DynamicResource Monitor.Interval}"
+                      Value="{Binding MonitorIntervalMinutes, Mode=TwoWay}"
+                      Minimum="1" Maximum="180" SmallChange="1"
+                      SpinButtonPlacementMode="Inline"/>
         <ui:Button Appearance="Danger" Margin="0,0,0,4"
                    Command="{Binding StopCommand}">
           <StackPanel Orientation="Horizontal">

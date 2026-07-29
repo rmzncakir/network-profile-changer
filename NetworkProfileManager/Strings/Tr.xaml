@@ -93,6 +93,11 @@
     <sys:String x:Key="Scanner.UseArp">ARP</sys:String>
     <sys:String x:Key="Scanner.UseArpTooltip">ARP taraması — güvenlik duvarı ICMP'yi engelleyen cihazları da bulur (yerel alt ağ).</sys:String>
     <sys:String x:Key="Scanner.UseTcpProbe">Port yoklama</sys:String>
+    <sys:String x:Key="Monitor.Enable">Sürekli izle</sys:String>
+    <sys:String x:Key="Monitor.EnableTooltip">Belirtilen aralıkta yeniden tarar ve ağa yeni bir cihaz girdiğinde bildirim gösterir.</sys:String>
+    <sys:String x:Key="Monitor.Interval">Dakika</sys:String>
+    <sys:String x:Key="Monitor.Started">İzleme açık — her {0} dakikada bir taranacak.</sys:String>
+    <sys:String x:Key="Monitor.NewDeviceTitle">Yeni cihaz bulundu</sys:String>
     <sys:String x:Key="Scanner.UseTcpProbeTooltip">TCP port yoklaması — alt ağ dışı cihazları bulur ve cihaz tipini tahmin eder (Modbus, S7, RTSP…).</sys:String>
     <sys:String x:Key="Scanner.StatusOnline">✓ Online</sys:String>
     <sys:String x:Key="Scanner.StatusOffline">— Offline</sys:String>

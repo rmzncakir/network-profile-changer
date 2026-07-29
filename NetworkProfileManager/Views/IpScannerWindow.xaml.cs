@@ -26,6 +26,9 @@ namespace NetworkProfileManager.Views
                 _vm.StatusText = Helpers.Loc.Format("Scanner.Status.AppliedIp", ip);
             };
             DataContext = _vm;
+
+            // Monitoring runs on a timer — make sure it cannot outlive the window.
+            Closed += (s, e) => _vm.Shutdown();
         }
 
         private void CloseClick(object sender, RoutedEventArgs e) => Close();

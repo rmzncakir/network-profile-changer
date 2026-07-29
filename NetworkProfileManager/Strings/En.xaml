@@ -93,6 +93,11 @@
     <sys:String x:Key="Scanner.UseArp">ARP</sys:String>
     <sys:String x:Key="Scanner.UseArpTooltip">ARP sweep — also finds devices whose firewall blocks ICMP (local subnet).</sys:String>
     <sys:String x:Key="Scanner.UseTcpProbe">Port probe</sys:String>
+    <sys:String x:Key="Monitor.Enable">Monitor</sys:String>
+    <sys:String x:Key="Monitor.EnableTooltip">Re-scans on the given interval and notifies when a device appears that wasn't there before.</sys:String>
+    <sys:String x:Key="Monitor.Interval">Minutes</sys:String>
+    <sys:String x:Key="Monitor.Started">Monitoring on — re-scanning every {0} min.</sys:String>
+    <sys:String x:Key="Monitor.NewDeviceTitle">New device found</sys:String>
     <sys:String x:Key="Scanner.UseTcpProbeTooltip">TCP port probe — finds off-subnet devices and guesses the device type (Modbus, S7, RTSP…).</sys:String>
     <sys:String x:Key="Scanner.StatusOnline">✓ Online</sys:String>
     <sys:String x:Key="Scanner.StatusOffline">— Offline</sys:String>
