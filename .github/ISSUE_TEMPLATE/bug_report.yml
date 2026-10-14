@@ -1,0 +1,50 @@
+name: Bug report
+description: Something doesn't work as described.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Security problems don't belong here — see SECURITY.md.
+        Real site addresses aren't needed; example addresses are fine.
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      description: From the zip name, or the exe's Properties → Details.
+      placeholder: "1.1.0"
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      placeholder: Windows 11 24H2
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Applying a profile or preset
+        - IP scanner
+        - Ping
+        - History / revert
+        - Tray / start with Windows
+        - Settings, language or theme
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: Steps, what you expected and what you saw. The exact error text helps most.
+    validations:
+      required: true
+  - type: textarea
+    id: adapter
+    attributes:
+      label: Adapter details (optional)
+      description: Adapter type (onboard, USB, Wi-Fi), static or DHCP, and whether the app was started as administrator.

@@ -7,7 +7,7 @@
 [![Release](https://img.shields.io/github/v/release/rmzncakir/network-profile-changer)](../../releases)
 [![No telemetry](https://img.shields.io/badge/telemetry-none-brightgreen)](SECURITY.md)
 
-Save, switch, and roll back Windows network adapter IP/DNS configurations through a Fluent UI. Up to 5 named profiles per adapter, full history with one-click revert, built-in IP scanner and ping tool.
+Save, switch, and roll back Windows network adapter IP/DNS configurations through a Fluent UI. One-click vendor presets, up to 5 named profiles per adapter, full history with one-click revert, built-in IP scanner and ping tool.
 
 > **Windows-only.** Uses `netsh` to apply configuration. The app itself runs unelevated; it asks for administrator rights only when you apply a change — one UAC prompt per apply. Running it as administrator up front works too and skips the prompt.
 
@@ -30,8 +30,9 @@ Other typical users: IT field technicians, lab/test-bench engineers, anyone runn
 
 ## Features
 
-- 🌐 **Profile management** — up to 5 named IP profiles per adapter (Static / DHCP, IP, Subnet, Gateway, Primary/Secondary DNS).
-- ⚡ **One-click apply** — apply a profile or manual settings to the active adapter instantly.
+- 🏭 **One-click vendor presets** — Siemens S7, Allen-Bradley, Mitsubishi, Beckhoff, Hikvision / Dahua and Office / DHCP fill in a laptop address on that vendor's default subnet. A preset only fills the fields; nothing changes until you press Apply.
+- 🌐 **Profile management** — up to 5 named IP profiles per adapter (Static / DHCP, IP, Subnet, Gateway, Primary/Secondary DNS). Import / export as JSON to move them between laptops.
+- ⚡ **One-click apply** — apply a profile or manual settings to the active adapter instantly, or press **Ctrl+1 … Ctrl+5** to apply the selected adapter's profiles.
 - ↩️ **Revert from history** — view the last 100 changes and roll back to a previous configuration with one click.
 - 🔍 **IP scanner** — multi-method discovery (ARP + ICMP + TCP), so devices that block ping still show up. Reports how each host was found, its MAC, open ports and a device-type hint (Modbus, S7, EtherNet/IP, OPC UA, RTSP, printer, SMB/RDP…). Optional monitoring mode notifies you when a new device joins. CSV export.
 - 📡 **Ping tool** — a continuous ping window for connectivity testing.
@@ -44,7 +45,17 @@ Other typical users: IT field technicians, lab/test-bench engineers, anyone runn
 
 ## Screenshots
 
-> _Add screenshots here under `docs/screenshots/`._
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/main-dark.png">
+  <img src="docs/screenshots/main-light.png" width="820" alt="Main window: adapter list, the selected adapter's live address, saved profiles with Ctrl+1 to Ctrl+4 shortcuts, ping test, history, and vendor presets pinned above the manual configuration">
+</picture>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/scanner-dark.png">
+  <img src="docs/screenshots/scanner-light.png" width="820" alt="IP scanner results: each device with how it was found (ICMP or ARP), response time, hostname, a protocol hint such as S7, Modbus, EtherNet/IP, OPC UA or RTSP, and its MAC address">
+</picture>
+
+<sub>Invented demo data. The screenshots follow your GitHub light / dark theme.</sub>
 
 ---
 
@@ -52,7 +63,7 @@ Other typical users: IT field technicians, lab/test-bench engineers, anyone runn
 
 1. Go to [Releases](../../releases) and grab the latest **`NetworkProfileManager-vX.X.X-win-x64.zip`**.
 2. Extract anywhere (e.g. `C:\Tools\NetworkProfileManager\`).
-3. Double-click `NetworkProfileManager.exe`. Accept the UAC prompt.
+3. Double-click `NetworkProfileManager.exe`. Windows asks for administrator permission (UAC) when you apply a change.
 
 > If Windows SmartScreen shows an "Unknown publisher" warning → **More info → Run anyway.** The executable is currently unsigned.
 
@@ -92,6 +103,7 @@ Profiles, history, and theme/language preferences live in:
 %LOCALAPPDATA%\NetworkProfileManager\data\
 ├── profiles_<adapter-id>.json
 ├── history_<adapter-id>.json
+├── scanner_settings.json
 └── app_settings.json
 ```
 
@@ -129,7 +141,7 @@ To report a vulnerability, see [SECURITY.md](SECURITY.md).
 dotnet test NetworkProfileManager.Tests/NetworkProfileManager.Tests.csproj
 ```
 
-xUnit, **94/94 tests passing**, ~51% line coverage on the testable core (Models, Services, Helpers, Commands, validation logic in ViewModels).
+xUnit, **188 tests**, run on every push by the build workflow. They cover input validation, the elevated worker's command whitelist, profile / history storage, CIDR formatting, Turkish / English string parity and view-model logic — about 40% line coverage of the non-UI code (Models, Services, Helpers, ViewModels). The WPF views are checked by hand.
 
 ---
 
@@ -137,14 +149,15 @@ xUnit, **94/94 tests passing**, ~51% line coverage on the testable core (Models,
 
 ```
 NetworkProfileManager/
-├── Models/         IpProfile, AdapterInfo, HistoryEntry, ScanResult
+├── Models/         IpProfile, AdapterInfo, HistoryEntry, ScanResult, VendorPreset
 ├── Services/       NetworkService (netsh), Profile/HistoryRepository, IpScannerService, NetworkMonitorService
 ├── ViewModels/     MainViewModel, AdapterViewModel, ProfileViewModel, IpScannerViewModel
 ├── Views/          MainWindow, AdapterListPanel, ProfilePanel, HistoryPanel, AddProfileDialog,
 │                   IpScannerWindow, PingWindow, ThemeSettingsWindow, TrayPopupWindow
 ├── Themes/         Styles.xaml — shared text/card styles (colours come from WPF-UI)
 ├── Strings/        Tr.xaml, En.xaml — UI strings bound via DynamicResource
-├── Helpers/        AppPaths, NotificationService, StartupHelper, LanguageManager, Loc
+├── Helpers/        ElevationHelper (UAC worker), AppPaths, AppSettingsStore, LanguageManager, Loc,
+│                   NotificationService, StartupHelper, IpFormat, ClipboardHelper
 └── Converters/     BoolToVisibility, AdapterTypeToSymbol
 ```
 
@@ -154,11 +167,7 @@ Standard MVVM. UI-independent code (Core) is covered by `NetworkProfileManager.T
 
 ## Contributing
 
-PRs welcome. Please:
-
-1. Add tests under `NetworkProfileManager.Tests/` for new code.
-2. Make sure `dotnet build` and `dotnet test` pass.
-3. Flag any security-relevant change in the PR description.
+PRs welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Questions and ideas go to [Discussions](../../discussions).
 
 ---
 
