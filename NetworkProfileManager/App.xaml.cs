@@ -131,7 +131,7 @@ namespace NetworkProfileManager
             _trayIcon.BalloonTipIcon  = ToolTipIcon.Info;
             _trayIcon.BalloonTipTitle = Loc.Get("Tray.HintTitle", "Arka planda çalışıyor");
             _trayIcon.BalloonTipText  = Loc.Get("Tray.HintText",
-                "Uygulama sistem tepsisinde çalışmaya devam ediyor. Çıkmak için tepsi simgesine sağ tıklayın.");
+                "Uygulama sistem tepsisinde çalışmaya devam ediyor. Çıkmak için tepsi simgesine sağ tıklayıp Çıkış'ı seçin.");
             _trayIcon.ShowBalloonTip(4000);
         }
 
@@ -234,9 +234,11 @@ namespace NetworkProfileManager
                 Visible = true
             };
 
+            // Right-click opens the same menu: it is where Windows users look for
+            // Exit, and the close-to-tray hint tells them to right-click.
             _trayIcon.MouseClick += (s, e) =>
             {
-                if (e.Button == MouseButtons.Left)
+                if (e.Button == MouseButtons.Left || e.Button == MouseButtons.Right)
                     ToggleTrayPopup();
             };
             _trayIcon.DoubleClick += (s, e) =>

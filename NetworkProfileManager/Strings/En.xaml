@@ -143,7 +143,7 @@
     <sys:String x:Key="Tray.ConnectionDown">Connection lost</sys:String>
     <sys:String x:Key="Tray.IpChanged">IP address changed</sys:String>
     <sys:String x:Key="Tray.HintTitle">Running in the background</sys:String>
-    <sys:String x:Key="Tray.HintText">The app keeps running in the system tray. Right-click the tray icon to exit.</sys:String>
+    <sys:String x:Key="Tray.HintText">The app keeps running in the system tray. Right-click the tray icon and choose Exit to quit.</sys:String>
 
     <!-- ── Notifications ── -->
     <sys:String x:Key="Notify.Success">Success</sys:String>

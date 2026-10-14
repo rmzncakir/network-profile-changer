@@ -30,7 +30,7 @@ Other typical users: IT field technicians, lab/test-bench engineers, anyone runn
 
 ## Features
 
-- 🏭 **One-click vendor presets** — Siemens S7, Allen-Bradley, Mitsubishi, Beckhoff, Hikvision / Dahua and Office / DHCP fill in a laptop address on that vendor's default subnet. A preset only fills the fields; nothing changes until you press Apply.
+- 🏭 **One-click vendor presets** — Siemens S7, Allen-Bradley, Mitsubishi, Hikvision / Dahua and Office / DHCP fill in a laptop address on that vendor's default subnet. A preset only fills the fields; nothing changes until you press Apply.
 - 🌐 **Profile management** — up to 5 named IP profiles per adapter (Static / DHCP, IP, Subnet, Gateway, Primary/Secondary DNS). Import / export as JSON to move them between laptops.
 - ⚡ **One-click apply** — apply a profile or manual settings to the active adapter instantly, or press **Ctrl+1 … Ctrl+5** to apply the selected adapter's profiles.
 - ↩️ **Revert from history** — view the last 100 changes and roll back to a previous configuration with one click.
