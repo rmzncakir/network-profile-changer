@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using Microsoft.Win32;
 
 namespace NetworkProfileManager.Helpers
@@ -50,8 +49,9 @@ namespace NetworkProfileManager.Helpers
 
         private static string BuildRunCommand() => $"\"{GetExePath()}\" --minimized";
 
+        // Environment.ProcessPath is the .exe even in a single-file publish, where
+        // Assembly.Location is empty.
         private static string GetExePath() =>
-            Process.GetCurrentProcess().MainModule?.FileName
-            ?? Path.ChangeExtension(Assembly.GetExecutingAssembly().Location, ".exe");
+            Environment.ProcessPath ?? Process.GetCurrentProcess().MainModule?.FileName ?? "";
     }
 }

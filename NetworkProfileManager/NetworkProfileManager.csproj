@@ -15,6 +15,16 @@
     <Version>1.1.1</Version>
     <AssemblyVersion>1.1.1.0</AssemblyVersion>
     <FileVersion>1.1.1.0</FileVersion>
+    <!-- The UI is Turkish / English only; skip WPF's resource folders for 11 other languages. -->
+    <SatelliteResourceLanguages>en;tr</SatelliteResourceLanguages>
+  </PropertyGroup>
+  <!-- Publishing for a runtime, as the release zip does (self-contained win-x64), produces one
+       .exe plus WPF's five native DLLs. They stay beside the exe on purpose: bundling them
+       unpacks them to the user-writable %TEMP% folder, and the elevated netsh worker would
+       then load DLLs any process of the user could replace. -->
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' != ''">
+    <PublishSingleFile>true</PublishSingleFile>
+    <EnableCompressionInSingleFile Condition="'$(SelfContained)' == 'true'">true</EnableCompressionInSingleFile>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />

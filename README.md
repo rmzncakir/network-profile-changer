@@ -62,14 +62,14 @@ Other typical users: IT field technicians, lab/test-bench engineers, anyone runn
 ## Download
 
 1. Go to [Releases](../../releases) and grab the latest **`NetworkProfileManager-vX.X.X-win-x64.zip`**.
-2. Extract anywhere (e.g. `C:\Tools\NetworkProfileManager\`).
+2. Extract anywhere (e.g. `C:\Tools\NetworkProfileManager\`). The zip holds `NetworkProfileManager.exe` and five WPF DLLs it needs beside it.
 3. Double-click `NetworkProfileManager.exe`. Windows asks for administrator permission (UAC) when you apply a change.
 
 > If Windows SmartScreen shows an "Unknown publisher" warning → **More info → Run anyway.** The executable is currently unsigned.
 
 ### Updating
 
-There is **no auto-updater**. Check this repo's [Releases](../../releases) page for new versions, download the latest zip, and extract it over the old folder. Your profiles live in `%LOCALAPPDATA%\NetworkProfileManager\data\` and are preserved across updates.
+There is **no auto-updater**. Check this repo's [Releases](../../releases) page for new versions, download the latest zip, and extract it over the old folder. Older zips held 466 files; the new exe ignores them, so you may empty the folder first. Your profiles live in `%LOCALAPPDATA%\NetworkProfileManager\data\` and are preserved across updates.
 
 ---
 
@@ -91,7 +91,7 @@ dotnet publish NetworkProfileManager/NetworkProfileManager.csproj `
     -c Release -r win-x64 --self-contained true -o publish
 ```
 
-Output is in `publish\`.
+Output is in `publish\`: a single `NetworkProfileManager.exe` plus WPF's five native DLLs. They stay beside the exe instead of being unpacked to `%TEMP%`, so extracting to an admin-only folder protects them too (see [Security](#security)).
 
 ---
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Security.Principal;
 using Newtonsoft.Json;
 
@@ -155,9 +154,10 @@ namespace NetworkProfileManager.Helpers
             }
         }
 
+        // Environment.ProcessPath is the .exe even in a single-file publish, where
+        // Assembly.Location is empty.
         private static string GetExePath() =>
-            Process.GetCurrentProcess().MainModule?.FileName
-            ?? Path.ChangeExtension(Assembly.GetExecutingAssembly().Location, ".exe");
+            Environment.ProcessPath ?? Process.GetCurrentProcess().MainModule?.FileName ?? "";
 
         private static string TryReadAllText(string path)
         {

@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.1] — 2026-10-14
 
+### Changed
+
+- **The release zip holds 6 files instead of 466.** The app is now a single
+  `NetworkProfileManager.exe` plus five WPF DLLs that must stay beside it, and WPF's
+  resource folders for 11 languages the UI doesn't offer are gone. The zip shrank from
+  71.8 MB to 60.9 MB. (The v1.1.1 zip was rebuilt this way the day it came out; the
+  first upload still held 466 files.)
+
+  Extracting over an older version's folder still works — the new exe ignores the old
+  files — but you can empty the folder first for a clean start. Profiles and history
+  live in `%LOCALAPPDATA%\NetworkProfileManager\data\` and are not affected.
+
 ### Fixed
 
 - The "running in the background" hint said to right-click the tray icon to exit, but
