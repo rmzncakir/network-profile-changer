@@ -6,6 +6,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.1] — 2026-10-14
+
+### Fixed
+
+- The "running in the background" hint said to right-click the tray icon to exit, but
+  right-click did nothing. Right-click now opens the tray menu, like left-click, and the
+  hint names the **Exit** command.
+
+### Removed
+
+- The **Beckhoff** preset. Beckhoff controllers have no factory IP address — they take
+  whatever address they are given — so a fixed "Beckhoff subnet" was misleading. Save a
+  profile for each site instead.
+
 ## [1.1.0] — 2026-10-14
 
 ### Added
@@ -100,6 +114,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Initial public release: adapter list, static/DHCP profiles, history with revert,
 IP scanner, ping tool, system tray, Turkish/English UI, light/dark/blue themes.
 
-[Unreleased]: https://github.com/rmzncakir/network-profile-changer/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/rmzncakir/network-profile-changer/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/rmzncakir/network-profile-changer/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/rmzncakir/network-profile-changer/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/rmzncakir/network-profile-changer/releases/tag/v1.0.0
