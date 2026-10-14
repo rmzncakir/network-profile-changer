@@ -37,6 +37,26 @@ jobs:
           $ver = "${{ github.ref_name }}".TrimStart('v')
           "version=$ver" >> $env:GITHUB_OUTPUT
 
+      # The "## [<version>]" section of CHANGELOG.md becomes the release notes.
+      # Fails fast (before building) if the changelog has no entry for this tag.
+      - name: Extract changelog section
+        id: notes
+        shell: pwsh
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: |
+          $section = @()
+          $inside = $false
+          foreach ($line in Get-Content CHANGELOG.md -Encoding utf8) {
+            if ($line.StartsWith('## ')) { $inside = $line.StartsWith("## [$env:VERSION]"); continue }
+            if ($line -match '^\[[^\]]+\]: https?://') { break }
+            if ($inside) { $section += $line }
+          }
+          $changes = ($section -join "`n").Trim()
+          if (-not $changes) { throw "CHANGELOG.md has no '## [$env:VERSION]' section." }
+          $delim = "CHANGELOG_$([guid]::NewGuid().ToString('N'))"
+          "changes<<$delim", $changes, $delim | Add-Content -Path $env:GITHUB_OUTPUT -Encoding utf8
+
       - name: Restore
         run: dotnet restore
 
@@ -115,11 +135,13 @@ jobs:
           tag_name: ${{ github.ref_name }}
           generate_release_notes: true
           body: |
+            ${{ steps.notes.outputs.changes }}
+
             ## Download
 
             1. Download **NetworkProfileManager-v${{ steps.ver.outputs.version }}-win-x64.zip**.
             2. Extract anywhere (e.g. `C:\Tools\NetworkProfileManager\`).
-            3. Double-click `NetworkProfileManager.exe`. Accept the UAC prompt (netsh requires administrator rights).
+            3. Double-click `NetworkProfileManager.exe`. Windows asks for administrator permission (UAC) when you apply a change — `netsh` requires it.
 
             > If Windows SmartScreen shows an "Unknown publisher" warning → **More info → Run anyway.**
 

@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] — 2026-10-14
+
 ### Added
 
 - **Multi-method network discovery.** The IP scanner no longer relies on ICMP alone.
@@ -98,5 +100,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Initial public release: adapter list, static/DHCP profiles, history with revert,
 IP scanner, ping tool, system tray, Turkish/English UI, light/dark/blue themes.
 
-[Unreleased]: https://github.com/rmzncakir/network-profile-changer/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/rmzncakir/network-profile-changer/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/rmzncakir/network-profile-changer/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/rmzncakir/network-profile-changer/releases/tag/v1.0.0
