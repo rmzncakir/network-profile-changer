@@ -43,10 +43,18 @@ namespace NetworkProfileManager
 
             base.OnStartup(e);
 
+            // Debug-only screenshot fixture: invented data in a throwaway folder,
+            // and nothing below may touch the user's real data or Run entry.
+            bool demo = false;
+#if DEBUG
+            demo = DemoMode.TryEnable(e.Args);
+#endif
+
             // Migrate legacy data (exe-relative) into LocalAppData on first run.
             // Must run BEFORE LanguageManager.Initialize so the language preference
             // saved by an older version is picked up correctly.
-            NetworkProfileManager.Helpers.AppPaths.MigrateLegacyDataIfPresent();
+            if (!demo)
+                NetworkProfileManager.Helpers.AppPaths.MigrateLegacyDataIfPresent();
 
             // Localization must initialize BEFORE any window is constructed so
             // DynamicResource lookups resolve to the right culture.
@@ -55,7 +63,8 @@ namespace NetworkProfileManager
             // If startup is enabled but the registered path no longer matches
             // the current exe (e.g. folder moved), self-heal. Never silently
             // re-enable startup the user disabled.
-            StartupHelper.RefreshIfEnabled();
+            if (!demo)
+                StartupHelper.RefreshIfEnabled();
 
             bool startMinimized = Array.Exists(e.Args, a => a == "--minimized");
 
@@ -77,7 +86,7 @@ namespace NetworkProfileManager
             };
 
             // Watch adapter up/down/IP-change and surface tray balloons.
-            if (_trayIcon != null)
+            if (_trayIcon != null && !demo)
                 _networkMonitor = new NetworkMonitorService(_trayIcon);
 
             _mainWindow = new MainWindow();

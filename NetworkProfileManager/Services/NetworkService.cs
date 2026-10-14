@@ -16,6 +16,9 @@ namespace NetworkProfileManager.Services
     {
         public List<AdapterInfo> GetAdapters()
         {
+#if DEBUG
+            if (DemoMode.IsActive) return DemoMode.Adapters();
+#endif
             var result = new List<AdapterInfo>();
 
             foreach (var nic in NetworkInterface.GetAllNetworkInterfaces())

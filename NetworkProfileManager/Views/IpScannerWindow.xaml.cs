@@ -25,6 +25,9 @@ namespace NetworkProfileManager.Views
                 applyIpCallback?.Invoke(ip);
                 _vm.StatusText = Helpers.Loc.Format("Scanner.Status.AppliedIp", ip);
             };
+#if DEBUG
+            if (Helpers.DemoMode.IsActive) Helpers.DemoMode.FillScanResults(_vm);
+#endif
             DataContext = _vm;
 
             // Monitoring runs on a timer — make sure it cannot outlive the window.
