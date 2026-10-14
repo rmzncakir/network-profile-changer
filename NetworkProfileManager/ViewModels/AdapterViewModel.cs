@@ -30,6 +30,10 @@ namespace NetworkProfileManager.ViewModels
             History  = history;
             LoadFromInfo();
             NotifyProfilesActive();
+
+            // Added, removed or replaced profiles need their Ctrl+N slot and
+            // active state straight away, not after the next refresh.
+            Profiles.CollectionChanged += (s, e) => NotifyProfilesActive();
         }
 
         // ── Adapter info ────────────────────────────────────────────
@@ -42,6 +46,8 @@ namespace NetworkProfileManager.ViewModels
             OnPropertyChanged(nameof(Description));
             OnPropertyChanged(nameof(IsConnected));
             OnPropertyChanged(nameof(CurrentIp));
+            OnPropertyChanged(nameof(CurrentSubnet));
+            OnPropertyChanged(nameof(CurrentGateway));
             OnPropertyChanged(nameof(IsDhcp));
             OnPropertyChanged(nameof(CurrentDnsDisplay));
             NotifyProfilesActive();
@@ -49,17 +55,22 @@ namespace NetworkProfileManager.ViewModels
 
         public void RefreshActiveProfiles() => NotifyProfilesActive();
 
-        // Tell each profile whether it is currently "active" on this adapter
+        // Tell each profile its Ctrl+N slot and whether it is active on this adapter
         private void NotifyProfilesActive()
         {
-            foreach (var p in Profiles)
-                p.UpdateFromAdapter(_info.CurrentIp, _info.IsDhcp);
+            for (int i = 0; i < Profiles.Count; i++)
+            {
+                Profiles[i].SetSlot(i);
+                Profiles[i].UpdateFromAdapter(_info);
+            }
         }
 
         public string Name        => _info.Name;
         public string Description => _info.Description;
         public bool   IsConnected => _info.IsConnected;
         public string CurrentIp   => string.IsNullOrEmpty(_info.CurrentIp) ? "—" : _info.CurrentIp;
+        public string CurrentSubnet  => string.IsNullOrEmpty(_info.CurrentSubnet)  ? "—" : _info.CurrentSubnet;
+        public string CurrentGateway => string.IsNullOrEmpty(_info.CurrentGateway) ? "—" : _info.CurrentGateway;
         public bool   IsDhcp      => _info.IsDhcp;
         public string AdapterType => _info.AdapterType;
 
@@ -67,7 +78,7 @@ namespace NetworkProfileManager.ViewModels
         {
             get
             {
-                if (string.IsNullOrEmpty(_info.CurrentPrimaryDns)) return "";
+                if (string.IsNullOrEmpty(_info.CurrentPrimaryDns)) return "—";
                 return string.IsNullOrEmpty(_info.CurrentSecondaryDns)
                     ? _info.CurrentPrimaryDns
                     : $"{_info.CurrentPrimaryDns} / {_info.CurrentSecondaryDns}";

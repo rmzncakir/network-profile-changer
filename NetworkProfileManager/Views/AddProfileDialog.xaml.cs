@@ -44,6 +44,7 @@ namespace NetworkProfileManager.Views
         {
             if (!_vm.IsValid)
             {
+                _vm.ShowRequiredErrors();
                 NotificationService.Warning(
                     Loc.Get("Validation.FillCorrectly", "Lütfen zorunlu alanları doğru doldurun."),
                     Loc.Get("Notify.MissingInfo", "Eksik Bilgi"));
@@ -78,6 +79,17 @@ namespace NetworkProfileManager.Views
         private string _primaryDns   = "";
         private string _secondaryDns = "";
         private bool   _isDhcp;
+
+        // Empty required fields are not flagged until the user tries to save,
+        // so the dialog does not open covered in red. Malformed input is flagged
+        // as soon as it is typed.
+        private bool   _showRequired;
+
+        public void ShowRequiredErrors()
+        {
+            _showRequired = true;
+            OnPropertyChanged(string.Empty);   // re-query every field's error
+        }
 
         public string Name
         {
@@ -142,11 +154,11 @@ namespace NetworkProfileManager.Views
                 switch (col)
                 {
                     case nameof(Name):
-                        return string.IsNullOrWhiteSpace(Name)
+                        return string.IsNullOrWhiteSpace(Name) && _showRequired
                             ? Loc.Get("Validation.NameRequired", "İsim zorunludur.")
                             : "";
                     case nameof(IpAddress):
-                        if (IsDhcp) return "";
+                        if (IsDhcp || (string.IsNullOrEmpty(IpAddress) && !_showRequired)) return "";
                         return AdapterViewModel.IsCanonicalIp(IpAddress)
                             ? "" : Loc.Get("Validation.InvalidIp", "Geçersiz IP");
                     case nameof(SubnetMask):

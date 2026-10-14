@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using NetworkProfileManager.Helpers;
@@ -13,59 +14,56 @@ namespace NetworkProfileManager.Views
             InitializeComponent();
             Loaded += (s, e) =>
             {
-                SelectCurrentTheme();
-                SelectCurrentLanguage();
-                UpdateSystemLanguageHint();
+                UpdateSystemLanguageLabel();
+                Select(CmbTheme, App.CurrentThemeName);
+                Select(CmbLanguage, LanguageManager.CurrentPreference);
                 TogStartup.IsChecked = StartupHelper.IsStartupEnabled();
                 _loaded = true;
             };
         }
 
-        private void SelectCurrentTheme()
+        private static void Select(ComboBox box, string tag)
         {
-            switch (App.CurrentThemeName)
-            {
-                case "Light":    RbLight.IsChecked    = true; break;
-                case "DarkBlue": RbDarkBlue.IsChecked = true; break;
-                default:         RbDark.IsChecked     = true; break;
-            }
+            box.SelectedItem = box.Items.OfType<ComboBoxItem>().FirstOrDefault(i => (string)i.Tag == tag)
+                               ?? box.Items[0];
         }
 
-        private void SelectCurrentLanguage()
-        {
-            switch (LanguageManager.CurrentPreference)
-            {
-                case LanguageManager.Turkish: RbLangTurkish.IsChecked = true; break;
-                case LanguageManager.English: RbLangEnglish.IsChecked = true; break;
-                default:                      RbLangSystem.IsChecked  = true; break;
-            }
-        }
-
-        /// <summary>Show the resolved system language next to the "System" radio.</summary>
-        private void UpdateSystemLanguageHint()
+        /// <summary>"System language (Türkçe)": show what "System" resolves to.</summary>
+        private void UpdateSystemLanguageLabel()
         {
             var effective = LanguageManager.ResolveEffective(LanguageManager.SystemDefault);
-            LangSystemHint.Text = effective == LanguageManager.Turkish
-                ? "— Türkçe"
-                : "— English";
+            string name = effective == LanguageManager.Turkish ? "Türkçe" : "English";
+            LangSystemItem.Content = $"{Loc.Get("Settings.LanguageSystem", "Sistem dili")} ({name})";
         }
 
-        private void Theme_Checked(object sender, RoutedEventArgs e)
+        private void Theme_Changed(object sender, SelectionChangedEventArgs e)
         {
             if (!_loaded) return;
-            if (sender is RadioButton rb && rb.Tag is string tag)
-            {
+            if (CmbTheme.SelectedItem is ComboBoxItem { Tag: string tag })
                 App.ApplyTheme(tag);
-                this.SetResourceReference(BackgroundProperty, "BackgroundBrush");
-                this.SetResourceReference(ForegroundProperty, "TextBrush");
-            }
         }
 
-        private void Language_Checked(object sender, RoutedEventArgs e)
+        private void Language_Changed(object sender, SelectionChangedEventArgs e)
         {
             if (!_loaded) return;
-            if (sender is RadioButton rb && rb.Tag is string tag)
-                LanguageManager.ApplyPreference(tag);
+            if (!(CmbLanguage.SelectedItem is ComboBoxItem { Tag: string tag })) return;
+
+            LanguageManager.ApplyPreference(tag);
+
+            // A closed ComboBox caches the text of its selected item, so re-select
+            // both boxes to show the new language right away.
+            _loaded = false;
+            UpdateSystemLanguageLabel();
+            Reselect(CmbTheme);
+            Reselect(CmbLanguage);
+            _loaded = true;
+        }
+
+        private static void Reselect(ComboBox box)
+        {
+            var item = box.SelectedItem;
+            box.SelectedItem = null;
+            box.SelectedItem = item;
         }
 
         private void StartupToggle_Changed(object sender, RoutedEventArgs e)

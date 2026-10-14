@@ -47,17 +47,18 @@ namespace NetworkProfileManager
             _snackbarService.SetSnackbarPresenter(RootSnackbar);
             _dialogService.SetDialogHost(RootDialogHost);
             NotificationService.Initialize(_snackbarService);
+        }
 
-            // Startup slide+fade animation
-            Opacity = 0;
-            var origTop = Top;
-            Top = origTop + 18;
-            BeginAnimation(OpacityProperty,
-                new DoubleAnimation(0, 1, new Duration(TimeSpan.FromMilliseconds(280))));
-            BeginAnimation(TopProperty,
-                new DoubleAnimation(origTop + 18, origTop,
-                    new Duration(TimeSpan.FromMilliseconds(280)))
-                { EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut } });
+        // ── Copy current IP ──────────────────────────────────────────
+        private void CopyIp_Click(object sender, RoutedEventArgs e)
+        {
+            if (!(sender is FrameworkElement fe && fe.Tag is string ip)) return;
+            if (string.IsNullOrEmpty(ip) || ip == "—") return;
+
+            if (ClipboardHelper.TrySetText(ip))
+                NotificationService.Info(Loc.Format("Status.Copied", ip));
+            else
+                NotificationService.Warning(Loc.Get("Status.CopyFailed", "Panoya kopyalanamadı."));
         }
 
         // ── Theme settings ───────────────────────────────────────────
@@ -113,7 +114,10 @@ namespace NetworkProfileManager
             vm.PropertyChanged += (s, args) =>
             {
                 if (args.PropertyName == nameof(MainViewModel.SelectedAdapter))
+                {
+                    RightPanel.ScrollToTop();
                     FadeIn(RightPanel);
+                }
             };
         }
 
@@ -123,7 +127,7 @@ namespace NetworkProfileManager
         /// </summary>
         private void RegisterProfileHotkeys()
         {
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < MainViewModel.MaxProfilesPerAdapter; i++)
             {
                 int index = i;   // captured per iteration
                 var command = new NetworkProfileManager.Commands.RelayCommand(

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Forms;
+using Microsoft.Win32;
 using NetworkProfileManager.Helpers;
 using NetworkProfileManager.Models;
 using NetworkProfileManager.Services;
@@ -12,6 +13,8 @@ using NetworkProfileManager.ViewModels;
 using NetworkProfileManager.Views;
 using Wpf.Ui.Appearance;
 using Application = System.Windows.Application;
+using FluentWindow = Wpf.Ui.Controls.FluentWindow;
+using WindowBackdropType = Wpf.Ui.Controls.WindowBackdropType;
 
 namespace NetworkProfileManager
 {
@@ -58,6 +61,7 @@ namespace NetworkProfileManager
 
             var savedTheme = LoadSavedTheme();
             ApplyTheme(savedTheme);
+            SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
 
             InitTrayIcon();
 
@@ -101,6 +105,8 @@ namespace NetworkProfileManager
 
         protected override void OnExit(ExitEventArgs e)
         {
+            // Static event: detach or the handler outlives the app.
+            SystemEvents.UserPreferenceChanged -= OnUserPreferenceChanged;
             _networkMonitor?.Dispose();
             _trayIcon?.Dispose();
             base.OnExit(e);
@@ -121,42 +127,92 @@ namespace NetworkProfileManager
         }
 
         // ── Theme persistence ─────────────────────────────────────────
-        private static string LoadSavedTheme() => AppSettingsStore.Get("Theme") ?? "Dark";
+        private static string LoadSavedTheme() => NormalizeTheme(AppSettingsStore.Get("Theme"));
 
         private static void SaveTheme(string themeName) => AppSettingsStore.Set("Theme", themeName);
 
+        // Older versions also offered "DarkBlue"; it folds into Dark. Anything
+        // unknown (or nothing saved yet) follows Windows.
+        internal static string NormalizeTheme(string? themeName) => themeName switch
+        {
+            "Light"              => "Light",
+            "Dark" or "DarkBlue" => "Dark",
+            _                    => "System",
+        };
+
         // ── Theme ─────────────────────────────────────────────────────
-        public static string CurrentThemeName { get; private set; } = "Dark";
+        /// <summary>"System" follows Windows' light/dark mode; "Light" and "Dark" pin it.</summary>
+        public static string CurrentThemeName { get; private set; } = "System";
 
         public static void ApplyTheme(string themeName)
         {
-            var appTheme = themeName == "Light"
-                ? ApplicationTheme.Light
-                : ApplicationTheme.Dark;
+            CurrentThemeName = NormalizeTheme(themeName);
+            ApplyCurrentTheme();
+            SaveTheme(CurrentThemeName);
+        }
 
-            ApplicationThemeManager.Apply(appTheme);
-
-            var newDict = new System.Windows.ResourceDictionary
-            {
-                Source = new Uri($"pack://application:,,,/Themes/{themeName}.xaml",
-                                 UriKind.Absolute)
-            };
-
-            var dicts = Current.Resources.MergedDictionaries;
-            var existing = dicts.FirstOrDefault(d => d.Contains("BackgroundBrush"));
-            if (existing != null)
-            {
-                int idx = dicts.IndexOf(existing);
-                dicts.Remove(existing);
-                dicts.Insert(idx, newDict);
-            }
+        private static void ApplyCurrentTheme()
+        {
+            // Both calls also pick up the Windows accent colour.
+            if (CurrentThemeName == "System")
+                ApplicationThemeManager.ApplySystemTheme(updateAccent: true);
             else
-            {
-                dicts.Add(newDict);
-            }
+                ApplicationThemeManager.Apply(
+                    CurrentThemeName == "Light" ? ApplicationTheme.Light : ApplicationTheme.Dark,
+                    WindowBackdropType.Mica,
+                    updateAccent: true);
 
-            CurrentThemeName = themeName;
-            SaveTheme(themeName);
+            // WPF-UI re-tints the main window and the windows it owns. Windows
+            // opened from the tray have no owner, so refresh their Mica here.
+            var theme = ApplicationThemeManager.GetAppTheme();
+            foreach (Window w in Current.Windows)
+            {
+                if (w is FluentWindow fw && w != Current.MainWindow && w.Owner == null)
+                    WindowBackgroundManager.UpdateBackground(fw, theme, fw.WindowBackdropType);
+            }
+        }
+
+        // Windows raises this when the user switches light/dark mode or the
+        // accent colour. The category is broad, so only re-apply on a real change.
+        private void OnUserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
+        {
+            if (e.Category != UserPreferenceCategory.General) return;
+
+            Dispatcher.BeginInvoke(() =>
+            {
+                // WPF-UI caches the Windows theme and only refreshes it inside
+                // Apply, so read it fresh or a light/dark switch goes unnoticed.
+                SystemThemeManager.UpdateSystemThemeCache();
+
+                bool accentChanged = ApplicationAccentColorManager.GetColorizationColor()
+                                     != ApplicationAccentColorManager.SystemAccent;
+                if (NeedsThemeRefresh(CurrentThemeName,
+                                      ApplicationThemeManager.GetAppTheme(),
+                                      ApplicationThemeManager.GetSystemTheme(),
+                                      accentChanged))
+                    ApplyCurrentTheme();
+            });
+        }
+
+        /// <summary>
+        /// Whether a Windows settings change needs the theme re-applied: always for a
+        /// new accent colour, and for "System" when Windows now wants another theme
+        /// than the one showing. Mirrors WPF-UI's ApplySystemTheme mapping.
+        /// </summary>
+        internal static bool NeedsThemeRefresh(string themeName, ApplicationTheme appTheme,
+                                               SystemTheme systemTheme, bool accentChanged)
+        {
+            if (accentChanged) return true;
+            if (themeName != "System") return false;
+
+            var wanted = systemTheme switch
+            {
+                SystemTheme.Dark or SystemTheme.CapturedMotion or SystemTheme.Glow => ApplicationTheme.Dark,
+                SystemTheme.HC1 or SystemTheme.HC2 or SystemTheme.HCBlack or SystemTheme.HCWhite
+                    => ApplicationTheme.HighContrast,
+                _ => ApplicationTheme.Light,
+            };
+            return wanted != appTheme;
         }
 
         // ── Tray ──────────────────────────────────────────────────────

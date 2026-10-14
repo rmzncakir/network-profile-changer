@@ -3,87 +3,82 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         Title="{DynamicResource AddProfile.TitleAdd}"
-        Width="400" Height="440"
-        MinWidth="360" MinHeight="360"
+        Width="440" Height="560"
+        MinWidth="380" MinHeight="400"
         ResizeMode="CanResize"
         WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False"
         ExtendsContentIntoTitleBar="True"
-        Background="{DynamicResource BackgroundBrush}"
-        Foreground="{DynamicResource TextBrush}">
+        WindowBackdropType="Mica">
 
   <Grid>
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
 
     <ui:TitleBar x:Name="DialogTitleBar"
                  Grid.Row="0"
                  Title="{DynamicResource AddProfile.TitleAdd}"
-                 Background="{DynamicResource TitleBarBrush}"
-                 Foreground="{DynamicResource TextBrush}"
                  ShowMaximize="False" ShowMinimize="False"/>
 
-    <Grid Grid.Row="1" Margin="20,14,20,16">
-      <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
-        <RowDefinition Height="Auto"/>
-      </Grid.RowDefinitions>
+    <!-- Inputs scroll when the window is small or text is scaled up, so the
+         actions in the footer always stay reachable. -->
+    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+      <StackPanel Margin="20,8,20,20">
+        <TextBlock Text="{DynamicResource AddProfile.NameLabel}" Style="{StaticResource FieldLabel}"/>
+        <ui:TextBox x:Name="TxtName"
+                    AutomationProperties.Name="{DynamicResource AddProfile.NameLabel}"
+                    Text="{Binding Name, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"/>
 
-      <!-- Inputs scroll when the window is small or text is scaled up, so the
-           action buttons below always stay reachable. -->
-      <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" Padding="0,0,4,0">
-        <StackPanel>
-          <!-- Name -->
-          <ui:TextBox PlaceholderText="{DynamicResource AddProfile.NamePlaceholder}"
-                      x:Name="TxtName"
-                      Text="{Binding Name, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
-                      Icon="{ui:SymbolIcon Tag20}"/>
-
-          <!-- DHCP / Statik seçimi -->
-          <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
-            <RadioButton Content="{DynamicResource EditBar.Dhcp}" IsChecked="{Binding IsDhcp}" Margin="0,0,20,0"/>
-            <RadioButton Content="{DynamicResource EditBar.Static}" IsChecked="{Binding IsStatic}"/>
-          </StackPanel>
-
-          <!-- IP Alanları -->
-          <StackPanel Margin="0,12,0,0">
-            <ui:TextBox PlaceholderText="{DynamicResource EditBar.Ip}"
-                        Margin="0,0,0,8"
-                        Text="{Binding IpAddress, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
-                        IsEnabled="{Binding IsStatic}"
-                        Icon="{ui:SymbolIcon PlugConnected20}"/>
-            <ui:TextBox PlaceholderText="{DynamicResource AddProfile.SubnetPlaceholder}"
-                        Margin="0,0,0,8"
-                        Text="{Binding SubnetMask, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
-                        IsEnabled="{Binding IsStatic}"
-                        Icon="{ui:SymbolIcon NetworkCheck20}"/>
-            <ui:TextBox PlaceholderText="{DynamicResource AddProfile.GatewayPlaceholder}"
-                        Margin="0,0,0,8"
-                        Text="{Binding Gateway, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
-                        IsEnabled="{Binding IsStatic}"
-                        Icon="{ui:SymbolIcon Router20}"/>
-            <ui:TextBox PlaceholderText="{DynamicResource AddProfile.PrimaryDnsPlaceholder}"
-                        Margin="0,0,0,8"
-                        Text="{Binding PrimaryDns, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
-                        IsEnabled="{Binding IsStatic}"
-                        Icon="{ui:SymbolIcon Globe24}"/>
-            <ui:TextBox PlaceholderText="{DynamicResource AddProfile.SecondaryDnsPlaceholder}"
-                        Text="{Binding SecondaryDns, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
-                        IsEnabled="{Binding IsStatic}"
-                        Icon="{ui:SymbolIcon Globe24}"/>
-          </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="0,16,0,4">
+          <RadioButton Content="{DynamicResource EditBar.Dhcp}" IsChecked="{Binding IsDhcp}" Margin="0,0,24,0"/>
+          <RadioButton Content="{DynamicResource EditBar.Static}" IsChecked="{Binding IsStatic}"/>
         </StackPanel>
-      </ScrollViewer>
 
-      <!-- Buttons -->
-      <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
-        <ui:Button Content="{DynamicResource Common.Cancel}" Appearance="Secondary"
-                   Padding="16,7" Margin="0,0,8,0" Click="Cancel_Click" IsCancel="True"/>
-        <ui:Button Content="{DynamicResource Common.Save}" Appearance="Primary"
-                   Padding="16,7" Click="Save_Click" IsDefault="True"/>
+        <StackPanel IsEnabled="{Binding IsStatic}">
+          <TextBlock Text="{DynamicResource EditBar.Ip}" Style="{StaticResource FieldLabel}" Margin="0,12,0,4"/>
+          <ui:TextBox AutomationProperties.Name="{DynamicResource EditBar.Ip}"
+                      Text="{Binding IpAddress, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"/>
+
+          <TextBlock Text="{DynamicResource EditBar.Subnet}" Style="{StaticResource FieldLabel}" Margin="0,12,0,4"/>
+          <ui:TextBox AutomationProperties.Name="{DynamicResource EditBar.Subnet}"
+                      PlaceholderText="255.255.255.0"
+                      Text="{Binding SubnetMask, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"/>
+
+          <TextBlock Text="{DynamicResource AddProfile.GatewayLabel}" Style="{StaticResource FieldLabel}" Margin="0,12,0,4"/>
+          <ui:TextBox AutomationProperties.Name="{DynamicResource AddProfile.GatewayLabel}"
+                      Text="{Binding Gateway, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"/>
+
+          <Grid Margin="0,12,0,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="12"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+              <TextBlock Text="{DynamicResource EditBar.PrimaryDns}" Style="{StaticResource FieldLabel}"/>
+              <ui:TextBox AutomationProperties.Name="{DynamicResource EditBar.PrimaryDns}"
+                          Text="{Binding PrimaryDns, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"/>
+            </StackPanel>
+            <StackPanel Grid.Column="2">
+              <TextBlock Text="{DynamicResource AddProfile.SecondaryDnsLabel}" Style="{StaticResource FieldLabel}"/>
+              <ui:TextBox AutomationProperties.Name="{DynamicResource AddProfile.SecondaryDnsLabel}"
+                          Text="{Binding SecondaryDns, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"/>
+            </StackPanel>
+          </Grid>
+        </StackPanel>
       </StackPanel>
-    </Grid>
+    </ScrollViewer>
+
+    <Border Grid.Row="2" Style="{StaticResource FooterBar}">
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+        <ui:Button Content="{DynamicResource Common.Cancel}" MinWidth="96" Margin="0,0,8,0"
+                   Click="Cancel_Click" IsCancel="True"/>
+        <ui:Button Content="{DynamicResource Common.Save}" Appearance="Primary" MinWidth="96"
+                   Click="Save_Click" IsDefault="True"/>
+      </StackPanel>
+    </Border>
   </Grid>
 </ui:FluentWindow>

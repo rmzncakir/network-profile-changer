@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Media;
 using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Shapes;
 using NetworkProfileManager.Helpers;
 
 namespace NetworkProfileManager.Views
@@ -14,21 +15,18 @@ namespace NetworkProfileManager.Views
         private readonly string _host;
         private bool _running;
 
-        // Resolve against the active theme so ping colors adapt to Light/Dark
-        // instead of staying pinned to the dark palette.
-        private Brush BrushSuccess => Themed("SuccessBrush", Color.FromRgb(0x00, 0xE6, 0x76));
-        private Brush BrushTimeout => Themed("DangerBrush",  Color.FromRgb(0xEF, 0x53, 0x50));
-        private Brush BrushTtl     => Themed("WarningBrush", Color.FromRgb(0xFF, 0x6D, 0x00));
-        private Brush BrushSubtext => Themed("SubtextBrush", Color.FromRgb(0x90, 0xA4, 0xAE));
-
-        private Brush Themed(string key, Color fallback)
-            => TryFindResource(key) as Brush ?? new SolidColorBrush(fallback);
+        // Fluent theme keys, bound by reference so a theme switch recolours
+        // lines that are already on screen.
+        private const string Success = "SystemFillColorSuccessBrush";
+        private const string Failure = "SystemFillColorCriticalBrush";
+        private const string Caution = "SystemFillColorCautionBrush";
+        private const string Neutral = "TextFillColorTertiaryBrush";
 
         public PingWindow(string host)
         {
             InitializeComponent();
             _host = host;
-            TitleHost.Text = host;
+            TitleHost.Text = $" · {host}";
             Loaded += async (s, e) => await RunPingAsync();
         }
 
@@ -37,8 +35,8 @@ namespace NetworkProfileManager.Views
             _running = true;
             RetryBtn.IsEnabled = false;
             ResultStack.Children.Clear();
-            SummaryBorder.Visibility = Visibility.Collapsed;
-            StatusDot.Fill = BrushSubtext;
+            SummaryText.Visibility = Visibility.Collapsed;
+            SetStatusColor(Neutral);
             StatusText.Text = Loc.Format("Ping.Pinging", _host);
 
             var times = new List<long>();
@@ -70,63 +68,61 @@ namespace NetworkProfileManager.Views
 
         private void AddResult(PingReply reply, int seq, List<long> times)
         {
-            Brush color;
-            string text;
-
             switch (reply.Status)
             {
                 case IPStatus.Success:
-                    color = BrushSuccess;
-                    text  = $"[{seq}]  {reply.Address}  —  {reply.RoundtripTime} ms  TTL={reply.Options?.Ttl}";
                     times.Add(reply.RoundtripTime);
-                    StatusDot.Fill = BrushSuccess;
+                    // Success is the normal case: neutral text, colour only on the dot.
+                    AddLine(seq, $"{reply.Address}    {reply.RoundtripTime} ms    TTL {reply.Options?.Ttl}", null);
+                    SetStatusColor(Success);
                     StatusText.Text = Loc.Format("Ping.ReplyReceived", reply.RoundtripTime);
                     break;
                 case IPStatus.TtlExpired:
-                    color = BrushTtl;
-                    text  = $"[{seq}]  {Loc.Get("Ping.TtlExpired", "TTL süresi doldu")}";
-                    StatusDot.Fill = BrushTtl;
+                    AddLine(seq, Loc.Get("Ping.TtlExpired", "TTL süresi doldu"), Caution);
+                    SetStatusColor(Caution);
                     StatusText.Text = Loc.Get("Ping.TtlExpired", "TTL süresi doldu");
                     break;
                 default:
-                    color = BrushTimeout;
-                    text  = $"[{seq}]  {Loc.Get("Ping.Timeout", "Zaman aşımı")} ({reply.Status})";
-                    StatusDot.Fill = BrushTimeout;
-                    StatusText.Text = Loc.Get("Ping.Timeout", "Zaman aşımı");
+                    // "Timed out" says it all; other failures (unreachable, …) name their status.
+                    string failure = reply.Status == IPStatus.TimedOut
+                        ? Loc.Get("Ping.Timeout", "Zaman aşımı")
+                        : $"{Loc.Get("Ping.Error", "Hata")}: {reply.Status}";
+                    AddLine(seq, failure, Failure);
+                    SetStatusColor(Failure);
+                    StatusText.Text = failure;
                     break;
             }
-
-            var tb = new TextBlock
-            {
-                Text       = text,
-                Foreground = color,
-                FontSize   = 12,
-                FontFamily = new FontFamily("Consolas"),
-                Margin     = new Thickness(0, 3, 0, 3)
-            };
-            ResultStack.Children.Add(tb);
-            ResultScroll.ScrollToBottom();
         }
 
         private void AddError(string message, int seq)
         {
-            var tb = new TextBlock
-            {
-                Text       = $"[{seq}]  {Loc.Get("Ping.Error", "Hata")}: {message}",
-                Foreground = BrushTimeout,
-                FontSize   = 12,
-                FontFamily = new FontFamily("Consolas"),
-                Margin     = new Thickness(0, 3, 0, 3)
-            };
-            ResultStack.Children.Add(tb);
-            StatusDot.Fill = BrushTimeout;
+            AddLine(seq, $"{Loc.Get("Ping.Error", "Hata")}: {message}", Failure);
+            SetStatusColor(Failure);
             StatusText.Text = Loc.Get("Ping.Error", "Hata");
         }
+
+        private void AddLine(int seq, string text, string? colorKey)
+        {
+            var number = new Run($"{seq}    ");
+            number.SetResourceReference(TextElement.ForegroundProperty, Neutral);
+
+            var body = new Run(text);
+            if (colorKey != null)
+                body.SetResourceReference(TextElement.ForegroundProperty, colorKey);
+
+            var tb = new TextBlock { Margin = new Thickness(0, 3, 0, 3), TextWrapping = TextWrapping.Wrap };
+            tb.Inlines.Add(number);
+            tb.Inlines.Add(body);
+            ResultStack.Children.Add(tb);
+            ResultScroll.ScrollToBottom();
+        }
+
+        private void SetStatusColor(string key) => StatusDot.SetResourceReference(Shape.FillProperty, key);
 
         private void ShowSummary(List<long> times)
         {
             StatusText.Text = Loc.Get("Ping.Completed", "Tamamlandı");
-            SummaryBorder.Visibility = Visibility.Visible;
+            SummaryText.Visibility = Visibility.Visible;
 
             if (times.Count == 0)
             {

@@ -3,13 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         Title="{DynamicResource Ping.Title}"
-        Width="500" Height="500"
-        MinWidth="380" MinHeight="360"
+        Width="480" Height="420"
+        MinWidth="380" MinHeight="340"
         WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False"
         ExtendsContentIntoTitleBar="True"
-        Background="{DynamicResource BackgroundBrush}"
-        Foreground="{DynamicResource TextBrush}">
+        WindowBackdropType="Mica">
 
   <Grid>
     <Grid.RowDefinitions>
@@ -17,79 +16,48 @@
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
       <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
 
-    <!-- TitleBar -->
-    <ui:TitleBar Grid.Row="0"
-                 Background="{DynamicResource TitleBarBrush}"
-                 Foreground="{DynamicResource TextBrush}"
-                 ShowMaximize="False"
-                 ShowMinimize="False">
+    <!-- The word comes from the string table so it follows a language switch;
+         only the host is set from code. -->
+    <ui:TitleBar Grid.Row="0" ShowMaximize="False" ShowMinimize="False">
       <ui:TitleBar.Header>
-        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0">
-          <ui:SymbolIcon Symbol="NetworkCheck20" FontSize="14"
-                         Foreground="{DynamicResource AccentBrush}" Margin="0,0,8,0"/>
-          <TextBlock Foreground="{DynamicResource SubtextBrush}" FontSize="12">
-            <Run Text="{DynamicResource Ping.Title}"/><Run Text=" — "/>
-          </TextBlock>
-          <TextBlock x:Name="TitleHost" Foreground="{DynamicResource AccentBrush}"
-                     FontSize="12" FontWeight="SemiBold"/>
-        </StackPanel>
+        <TextBlock FontSize="12" VerticalAlignment="Center" Margin="16,0,0,0">
+          <Run Text="{DynamicResource Ping.Title}"/><Run x:Name="TitleHost"/>
+        </TextBlock>
       </ui:TitleBar.Header>
     </ui:TitleBar>
 
-    <!-- Status bar -->
-    <Border Grid.Row="1"
-            Background="{DynamicResource SurfaceBrush}"
-            BorderBrush="{DynamicResource BorderBrush}"
-            BorderThickness="0,0,0,1"
-            Padding="14,8">
-      <StackPanel Orientation="Horizontal">
-        <Ellipse x:Name="StatusDot" Width="8" Height="8"
-                 Fill="{DynamicResource SubtextBrush}"
-                 VerticalAlignment="Center" Margin="0,0,8,0"/>
-        <TextBlock x:Name="StatusText" Text="{DynamicResource Common.Ready}"
-                   Foreground="{DynamicResource SubtextBrush}"
-                   FontSize="12" VerticalAlignment="Center"/>
-      </StackPanel>
+    <!-- Live status: one dot, one line -->
+    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="20,8,20,12">
+      <Ellipse x:Name="StatusDot" Width="10" Height="10"
+               Fill="{DynamicResource TextFillColorTertiaryBrush}"
+               VerticalAlignment="Center" Margin="0,0,10,0"/>
+      <TextBlock x:Name="StatusText" Text="{DynamicResource Common.Ready}"
+                 FontSize="14" VerticalAlignment="Center"/>
+    </StackPanel>
+
+    <Border Grid.Row="2" Style="{StaticResource Card}" Margin="20,0,20,16" Padding="0">
+      <DockPanel>
+        <TextBlock x:Name="SummaryText" DockPanel.Dock="Bottom"
+                   Style="{StaticResource CaptionText}" TextWrapping="Wrap"
+                   Margin="16,10,16,12" Visibility="Collapsed"/>
+        <ScrollViewer x:Name="ResultScroll"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+          <StackPanel x:Name="ResultStack" Margin="16,10"/>
+        </ScrollViewer>
+      </DockPanel>
     </Border>
 
-    <!-- Results -->
-    <ScrollViewer Grid.Row="2" x:Name="ResultScroll"
-                  VerticalScrollBarVisibility="Auto"
-                  HorizontalScrollBarVisibility="Disabled"
-                  Padding="14,8">
-      <StackPanel x:Name="ResultStack"/>
-    </ScrollViewer>
-
-    <!-- Summary -->
-    <Border Grid.Row="3" x:Name="SummaryBorder"
-            Background="{DynamicResource SurfaceBrush}"
-            BorderBrush="{DynamicResource BorderBrush}"
-            BorderThickness="0,1,0,0"
-            Padding="14,8"
-            Visibility="Collapsed">
-      <TextBlock x:Name="SummaryText"
-                 Foreground="{DynamicResource SubtextBrush}"
-                 FontSize="11"/>
-    </Border>
-
-    <!-- Buttons -->
-    <Border Grid.Row="4" Background="{DynamicResource TitleBarBrush}" Padding="14,8">
+    <Border Grid.Row="3" Style="{StaticResource FooterBar}">
       <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-        <ui:Button x:Name="RetryBtn"
-                   Appearance="Secondary"
-                   Padding="12,6" Margin="0,0,8,0"
-                   Click="RetryClick">
-          <StackPanel Orientation="Horizontal">
-            <ui:SymbolIcon Symbol="ArrowSync20" FontSize="13" Margin="0,0,6,0"/>
-            <TextBlock Text="{DynamicResource Common.Retry}"/>
-          </StackPanel>
-        </ui:Button>
-        <ui:Button Content="{DynamicResource Common.Close}"
-                   Appearance="Primary"
-                   Padding="14,6" Click="CloseClick" IsCancel="True"/>
+        <ui:Button x:Name="RetryBtn" MinWidth="96" Margin="0,0,8,0"
+                   Icon="{ui:SymbolIcon ArrowSync20}"
+                   Content="{DynamicResource Common.Retry}"
+                   Click="RetryClick"/>
+        <ui:Button Content="{DynamicResource Common.Close}" MinWidth="96"
+                   Click="CloseClick" IsCancel="True"/>
       </StackPanel>
     </Border>
   </Grid>

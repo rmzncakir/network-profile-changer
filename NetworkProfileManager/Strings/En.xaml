@@ -32,25 +32,25 @@
     <sys:String x:Key="Adapters.Header">Network Adapters</sys:String>
     <sys:String x:Key="Adapters.NotConnected">Not connected</sys:String>
     <sys:String x:Key="Adapters.CopyIpTooltip">Copy IP</sys:String>
+    <sys:String x:Key="Adapter.Dns">DNS</sys:String>
+    <sys:String x:Key="Adapter.Mode">Configuration</sys:String>
 
     <!-- ── ProfilePanel ── -->
     <sys:String x:Key="Profiles.Header">Profiles</sys:String>
     <sys:String x:Key="Profiles.AddButton">Add Profile</sys:String>
     <sys:String x:Key="Profiles.Active">Active</sys:String>
-    <sys:String x:Key="Profiles.NoProfiles">No profiles yet.&#x0a;Start with '+ Add Profile'.</sys:String>
+    <sys:String x:Key="Profiles.NoProfiles">No saved profiles for this adapter.</sys:String>
     <sys:String x:Key="Profiles.NoAdapterSelected">Select an adapter from the list on the left.</sys:String>
-    <sys:String x:Key="Profiles.EditTooltip">Edit profile</sys:String>
-    <sys:String x:Key="Profiles.DeleteTooltip">Delete profile</sys:String>
+    <sys:String x:Key="Profiles.More">More options</sys:String>
 
     <!-- ── HistoryPanel ── -->
     <sys:String x:Key="History.Header">History</sys:String>
     <sys:String x:Key="History.ColumnDate">Date</sys:String>
-    <sys:String x:Key="History.ColumnOldIp">Old IP</sys:String>
-    <sys:String x:Key="History.ColumnNewIp">New IP</sys:String>
+    <sys:String x:Key="History.ColumnChange">Change</sys:String>
     <sys:String x:Key="History.ColumnProfile">Profile</sys:String>
-    <sys:String x:Key="History.RevertButton">Revert</sys:String>
     <sys:String x:Key="History.RevertTooltip">Revert to this IP</sys:String>
     <sys:String x:Key="History.ClearTooltip">Clear history</sys:String>
+    <sys:String x:Key="History.Empty">No changes yet.</sys:String>
 
     <!-- ── Edit bar ── -->
     <sys:String x:Key="EditBar.Dhcp">DHCP</sys:String>
@@ -68,17 +68,15 @@
     <!-- ── AddProfileDialog ── -->
     <sys:String x:Key="AddProfile.TitleAdd">Add Profile</sys:String>
     <sys:String x:Key="AddProfile.TitleEdit">Edit Profile</sys:String>
-    <sys:String x:Key="AddProfile.NamePlaceholder">Profile name (required)</sys:String>
-    <sys:String x:Key="AddProfile.SubnetPlaceholder">Subnet mask (e.g. 255.255.255.0)</sys:String>
-    <sys:String x:Key="AddProfile.GatewayPlaceholder">Gateway (optional)</sys:String>
-    <sys:String x:Key="AddProfile.PrimaryDnsPlaceholder">Primary DNS (e.g. 8.8.8.8)</sys:String>
-    <sys:String x:Key="AddProfile.SecondaryDnsPlaceholder">Secondary DNS (optional)</sys:String>
+    <sys:String x:Key="AddProfile.NameLabel">Profile name</sys:String>
+    <sys:String x:Key="AddProfile.GatewayLabel">Gateway (optional)</sys:String>
+    <sys:String x:Key="AddProfile.SecondaryDnsLabel">Secondary DNS (optional)</sys:String>
 
     <!-- ── IpScannerWindow ── -->
     <sys:String x:Key="Scanner.Title">IP Scanner</sys:String>
     <sys:String x:Key="Scanner.StartIp">Start IP</sys:String>
     <sys:String x:Key="Scanner.EndIp">End IP</sys:String>
-    <sys:String x:Key="Scanner.TimeoutMs">Timeout ms</sys:String>
+    <sys:String x:Key="Scanner.TimeoutMs">Timeout (ms)</sys:String>
     <sys:String x:Key="Scanner.MaxParallel">Parallel</sys:String>
     <sys:String x:Key="Scanner.StartButton">Scan</sys:String>
     <sys:String x:Key="Scanner.StopButton">Stop</sys:String>
@@ -95,7 +93,7 @@
     <sys:String x:Key="Scanner.UseTcpProbe">Port probe</sys:String>
     <sys:String x:Key="Monitor.Enable">Monitor</sys:String>
     <sys:String x:Key="Monitor.EnableTooltip">Re-scans on the given interval and notifies when a device appears that wasn't there before.</sys:String>
-    <sys:String x:Key="Monitor.Interval">Minutes</sys:String>
+    <sys:String x:Key="Monitor.Interval">Interval (min)</sys:String>
     <sys:String x:Key="Monitor.Started">Monitoring on — re-scanning every {0} min.</sys:String>
     <sys:String x:Key="Monitor.NewDeviceTitle">New device found</sys:String>
     <sys:String x:Key="Profiles.ExportTitle">Export Profiles</sys:String>
@@ -108,10 +106,9 @@
     <sys:String x:Key="Status.ImportEmpty">No valid profiles found in the file.</sys:String>
     <sys:String x:Key="EditBar.Presets">Preset</sys:String>
     <sys:String x:Key="EditBar.PresetsTooltip">Fills the fields for a vendor's usual subnet. You still press Apply to commit it.</sys:String>
-    <sys:String x:Key="Status.PresetLoaded">Preset "{0}" loaded — review it, then press Apply.</sys:String>
     <sys:String x:Key="Scanner.UseTcpProbeTooltip">TCP port probe — finds off-subnet devices and guesses the device type (Modbus, S7, RTSP…).</sys:String>
-    <sys:String x:Key="Scanner.StatusOnline">✓ Online</sys:String>
-    <sys:String x:Key="Scanner.StatusOffline">— Offline</sys:String>
+    <sys:String x:Key="Scanner.StatusOnline">Online</sys:String>
+    <sys:String x:Key="Scanner.StatusOffline">Offline</sys:String>
 
     <!-- ── PingWindow ── -->
     <sys:String x:Key="Ping.Title">Ping</sys:String>
@@ -126,9 +123,9 @@
 
     <!-- ── Settings window ── -->
     <sys:String x:Key="Settings.Title">Settings</sys:String>
-    <sys:String x:Key="Settings.ColorTheme">Color Theme</sys:String>
-    <sys:String x:Key="Settings.ThemeDark">Dark  (Default)</sys:String>
-    <sys:String x:Key="Settings.ThemeDarkBlue">Dark Blue</sys:String>
+    <sys:String x:Key="Settings.ColorTheme">App theme</sys:String>
+    <sys:String x:Key="Settings.ThemeSystem">Use system setting</sys:String>
+    <sys:String x:Key="Settings.ThemeDark">Dark</sys:String>
     <sys:String x:Key="Settings.ThemeLight">Light</sys:String>
     <sys:String x:Key="Settings.Language">Language</sys:String>
     <sys:String x:Key="Settings.LanguageSystem">System language</sys:String>
@@ -157,7 +154,6 @@
     <sys:String x:Key="Notify.InvalidInput">Invalid input</sys:String>
 
     <!-- ── Status messages ── -->
-    <sys:String x:Key="Status.Refreshed">Refreshed — {0}</sys:String>
     <sys:String x:Key="Status.DhcpEnabled">DHCP enabled.</sys:String>
     <sys:String x:Key="Status.IpApplied">IP applied: {0}</sys:String>
     <sys:String x:Key="Status.ProfileApplied">Profile applied: {0}</sys:String>
@@ -169,9 +165,9 @@
     <sys:String x:Key="Status.RevertedDhcp">Reverted to DHCP.</sys:String>
     <sys:String x:Key="Status.RevertedIp">Reverted: {0}</sys:String>
     <sys:String x:Key="Status.RevertError">Revert error: {0}</sys:String>
-    <sys:String x:Key="Status.ErrorPrefix">Error: {0}</sys:String>
     <sys:String x:Key="Status.CsvExported">CSV saved: {0}</sys:String>
     <sys:String x:Key="Status.Copied">Copied: {0}</sys:String>
+    <sys:String x:Key="Status.CopyFailed">Could not copy to the clipboard.</sys:String>
     <sys:String x:Key="Status.ScanComplete">Completed — {0} active devices found</sys:String>
     <sys:String x:Key="Status.ScanProgress">{0}/{1} scanned — {2} active devices</sys:String>
     <sys:String x:Key="Status.ScanStopping">Stopping…</sys:String>

@@ -6,85 +6,62 @@
         AllowsTransparency="True"
         ResizeMode="NoResize"
         SizeToContent="Height"
-        Width="250"
+        Width="260"
         ShowInTaskbar="False"
         Topmost="True"
         Background="Transparent"
+        Foreground="{DynamicResource TextFillColorPrimaryBrush}"
         Left="-9999" Top="-9999">
 
   <Window.Resources>
-    <!-- Tray action button style -->
+    <!-- Menu row, styled like a Windows 11 context menu item -->
     <Style x:Key="TrayActionBtn" TargetType="Button">
       <Setter Property="Background"              Value="Transparent"/>
+      <Setter Property="Foreground"              Value="{DynamicResource TextFillColorPrimaryBrush}"/>
       <Setter Property="BorderThickness"         Value="0"/>
-      <Setter Property="Padding"                 Value="12,9"/>
-      <Setter Property="Cursor"                  Value="Hand"/>
+      <Setter Property="Padding"                 Value="12,8"/>
+      <Setter Property="Margin"                  Value="0,1"/>
+      <Setter Property="FontSize"                Value="14"/>
       <Setter Property="HorizontalAlignment"     Value="Stretch"/>
       <Setter Property="HorizontalContentAlignment" Value="Left"/>
-      <Setter Property="FontFamily"              Value="Segoe UI"/>
-      <Setter Property="FontSize"                Value="13"/>
+      <Setter Property="FocusVisualStyle"        Value="{DynamicResource DefaultControlFocusVisualStyle}"/>
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
             <Border x:Name="Bg" Background="{TemplateBinding Background}"
-                    CornerRadius="6" Padding="{TemplateBinding Padding}">
+                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                    Padding="{TemplateBinding Padding}">
               <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
             </Border>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
                 <Setter TargetName="Bg" Property="Background"
-                        Value="{DynamicResource CardSelectedBrush}"/>
+                        Value="{DynamicResource SubtleFillColorSecondaryBrush}"/>
               </Trigger>
               <Trigger Property="IsPressed" Value="True">
-                <Setter TargetName="Bg" Property="Opacity" Value="0.7"/>
+                <Setter TargetName="Bg" Property="Background"
+                        Value="{DynamicResource SubtleFillColorTertiaryBrush}"/>
               </Trigger>
             </ControlTemplate.Triggers>
           </ControlTemplate>
         </Setter.Value>
       </Setter>
     </Style>
-
-    <!-- Profile apply button style (indented) -->
-    <Style x:Key="TrayProfileBtn" TargetType="Button" BasedOn="{StaticResource TrayActionBtn}">
-      <Setter Property="Padding"   Value="16,7"/>
-      <Setter Property="FontSize"  Value="12"/>
-    </Style>
   </Window.Resources>
 
-  <!-- Outer container: Margin provides room for drop shadow -->
-  <Border Margin="10,10,10,6"
-          Background="{DynamicResource SurfaceBrush}"
-          BorderBrush="{DynamicResource BorderBrush}"
+  <!-- Margin leaves room for the shadow -->
+  <Border Margin="12,12,12,8"
+          Background="{DynamicResource SolidBackgroundFillColorQuarternaryBrush}"
+          BorderBrush="{DynamicResource SurfaceStrokeColorFlyoutBrush}"
           BorderThickness="1"
-          CornerRadius="10">
+          CornerRadius="8">
     <Border.Effect>
-      <DropShadowEffect BlurRadius="20" ShadowDepth="4"
-                        Direction="270" Opacity="0.40"/>
+      <DropShadowEffect BlurRadius="16" ShadowDepth="4" Direction="270" Opacity="0.25"/>
     </Border.Effect>
 
-    <DockPanel>
-      <!-- ── Header ── -->
-      <Border DockPanel.Dock="Top"
-              Background="{DynamicResource TitleBarBrush}"
-              CornerRadius="9,9,0,0"
-              Padding="14,10">
-        <StackPanel Orientation="Horizontal">
-          <TextBlock Text="⬡" Foreground="{DynamicResource AccentBrush}"
-                     FontSize="16" VerticalAlignment="Center" Margin="0,0,10,0"/>
-          <StackPanel VerticalAlignment="Center">
-            <TextBlock Text="Network Profile Manager"
-                       FontSize="12" FontWeight="SemiBold"
-                       Foreground="{DynamicResource TextBrush}"/>
-          </StackPanel>
-        </StackPanel>
-      </Border>
-
-      <!-- ── Scrollable items area ── -->
-      <ScrollViewer DockPanel.Dock="Top"
-                    VerticalScrollBarVisibility="Auto"
-                    HorizontalScrollBarVisibility="Disabled">
-        <StackPanel x:Name="ItemsPanel" Margin="4,4,4,4"/>
-      </ScrollViewer>
-    </DockPanel>
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+      <StackPanel x:Name="ItemsPanel" Margin="4"/>
+    </ScrollViewer>
   </Border>
 </Window>

@@ -36,7 +36,7 @@ Other typical users: IT field technicians, lab/test-bench engineers, anyone runn
 - 🔍 **IP scanner** — multi-method discovery (ARP + ICMP + TCP), so devices that block ping still show up. Reports how each host was found, its MAC, open ports and a device-type hint (Modbus, S7, EtherNet/IP, OPC UA, RTSP, printer, SMB/RDP…). Optional monitoring mode notifies you when a new device joins. CSV export.
 - 📡 **Ping tool** — a continuous ping window for connectivity testing.
 - 🔔 **Live notifications** — system-tray balloon when adapter IP changes or connection drops.
-- 🎨 **3 themes** — Dark (default), Dark Blue, Light.
+- 🎨 **Windows 11 look** — Fluent design with Mica and your Windows accent colour; follows the system light/dark mode, or pin Light / Dark.
 - 🌍 **Bilingual** — Turkish / English / System (auto-detect). Runtime switching, persisted.
 - 🪟 **System tray** — keeps running in the tray when the window is closed; optional auto-start with Windows.
 
@@ -142,10 +142,10 @@ NetworkProfileManager/
 ├── ViewModels/     MainViewModel, AdapterViewModel, ProfileViewModel, IpScannerViewModel
 ├── Views/          MainWindow, AdapterListPanel, ProfilePanel, HistoryPanel, AddProfileDialog,
 │                   IpScannerWindow, PingWindow, ThemeSettingsWindow, TrayPopupWindow
-├── Themes/         Dark.xaml, DarkBlue.xaml, Light.xaml
+├── Themes/         Styles.xaml — shared text/card styles (colours come from WPF-UI)
 ├── Strings/        Tr.xaml, En.xaml — UI strings bound via DynamicResource
 ├── Helpers/        AppPaths, NotificationService, StartupHelper, LanguageManager, Loc
-└── Converters/     BoolToVisibility, StatusToColor, AdapterTypeToSymbol, ...
+└── Converters/     BoolToVisibility, AdapterTypeToSymbol
 ```
 
 Standard MVVM. UI-independent code (Core) is covered by `NetworkProfileManager.Tests`.

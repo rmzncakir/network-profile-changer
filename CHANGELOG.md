@@ -39,6 +39,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Windows 11 look.** The custom navy/neon palette is gone; every window now uses
+  the Fluent theme resources, the Mica backdrop and the Windows accent colour.
+  Theme choices are *System* (default, follows Windows light/dark), *Light* and
+  *Dark*; the old *Dark Blue* setting maps to *Dark*. On Windows 10 the windows fall
+  back to a solid background.
+- **Main window reorganised** around the selected adapter: its live IP, mask,
+  gateway, DNS and DHCP/static state at the top, then profiles, ping and history.
+  Manual configuration is pinned below them so it never scrolls away, and vendor
+  presets are now one-click buttons there instead of a drop-down menu. The adapter
+  list is a plain navigation list; panel header strips and the status bar are gone
+  (messages go to the notification bar).
+- Profiles are full-width rows showing a one-line summary (`192.168.0.100/24 · GW …`)
+  and their Ctrl+1..5 shortcut. The active profile has an accent check before its
+  name; edit and delete moved into a "…" menu.
+- A profile counts as **active** only when the adapter's address, mask and gateway
+  all match it (and DNS, when both sides report one). Previously a matching IP was
+  enough, so a profile with a different gateway looked active.
+- Dialogs (settings, add/edit profile, ping, scanner) use labelled fields and a
+  footer action bar; settings use drop-downs instead of radio lists.
+- Scanner: start and stop share one button slot, and the status column is localised.
 - Scanner defaults favour completeness: timeout 500 ms → 1000 ms, parallelism 50 → 128.
 - ARP resolution now uses the `SendARP` API instead of spawning `arp.exe` per host.
 - The sweep runs on dedicated threads; blocking ARP calls on pool threads tripped the
@@ -48,6 +68,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Copy buttons could crash the app** when another program (RDP clipboard sync, a
+  clipboard manager) held the clipboard; they now report "could not copy" instead.
 - **Wrong adapter could be configured.** Apply / apply-profile / revert re-read the
   selected adapter *inside* the background task, so changing the selection mid-apply
   could send the address to a different adapter or record the wrong history entry.

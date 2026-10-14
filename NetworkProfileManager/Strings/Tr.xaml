@@ -32,25 +32,25 @@
     <sys:String x:Key="Adapters.Header">Ağ Adaptörleri</sys:String>
     <sys:String x:Key="Adapters.NotConnected">Bağlı değil</sys:String>
     <sys:String x:Key="Adapters.CopyIpTooltip">IP'yi kopyala</sys:String>
+    <sys:String x:Key="Adapter.Dns">DNS</sys:String>
+    <sys:String x:Key="Adapter.Mode">Yapılandırma</sys:String>
 
     <!-- ── ProfilePanel ── -->
     <sys:String x:Key="Profiles.Header">Profiller</sys:String>
     <sys:String x:Key="Profiles.AddButton">Profil Ekle</sys:String>
     <sys:String x:Key="Profiles.Active">Aktif</sys:String>
-    <sys:String x:Key="Profiles.NoProfiles">Henüz profil yok.&#x0a;'+ Profil Ekle' ile başlayın.</sys:String>
+    <sys:String x:Key="Profiles.NoProfiles">Bu adaptör için kayıtlı profil yok.</sys:String>
     <sys:String x:Key="Profiles.NoAdapterSelected">Soldaki listeden bir adaptör seçin.</sys:String>
-    <sys:String x:Key="Profiles.EditTooltip">Profili düzenle</sys:String>
-    <sys:String x:Key="Profiles.DeleteTooltip">Profili sil</sys:String>
+    <sys:String x:Key="Profiles.More">Diğer seçenekler</sys:String>
 
     <!-- ── HistoryPanel ── -->
     <sys:String x:Key="History.Header">Geçmiş</sys:String>
     <sys:String x:Key="History.ColumnDate">Tarih</sys:String>
-    <sys:String x:Key="History.ColumnOldIp">Eski IP</sys:String>
-    <sys:String x:Key="History.ColumnNewIp">Yeni IP</sys:String>
+    <sys:String x:Key="History.ColumnChange">Değişiklik</sys:String>
     <sys:String x:Key="History.ColumnProfile">Profil</sys:String>
-    <sys:String x:Key="History.RevertButton">Geri Al</sys:String>
     <sys:String x:Key="History.RevertTooltip">Bu IP'ye geri al</sys:String>
     <sys:String x:Key="History.ClearTooltip">Geçmişi temizle</sys:String>
+    <sys:String x:Key="History.Empty">Henüz değişiklik yok.</sys:String>
 
     <!-- ── Edit bar ── -->
     <sys:String x:Key="EditBar.Dhcp">DHCP</sys:String>
@@ -68,17 +68,15 @@
     <!-- ── AddProfileDialog ── -->
     <sys:String x:Key="AddProfile.TitleAdd">Profil Ekle</sys:String>
     <sys:String x:Key="AddProfile.TitleEdit">Profil Düzenle</sys:String>
-    <sys:String x:Key="AddProfile.NamePlaceholder">Profil adı (zorunlu)</sys:String>
-    <sys:String x:Key="AddProfile.SubnetPlaceholder">Subnet Maskesi (örn. 255.255.255.0)</sys:String>
-    <sys:String x:Key="AddProfile.GatewayPlaceholder">Gateway (opsiyonel)</sys:String>
-    <sys:String x:Key="AddProfile.PrimaryDnsPlaceholder">Birincil DNS (örn. 8.8.8.8)</sys:String>
-    <sys:String x:Key="AddProfile.SecondaryDnsPlaceholder">İkincil DNS (opsiyonel)</sys:String>
+    <sys:String x:Key="AddProfile.NameLabel">Profil adı</sys:String>
+    <sys:String x:Key="AddProfile.GatewayLabel">Gateway (opsiyonel)</sys:String>
+    <sys:String x:Key="AddProfile.SecondaryDnsLabel">İkincil DNS (opsiyonel)</sys:String>
 
     <!-- ── IpScannerWindow ── -->
     <sys:String x:Key="Scanner.Title">IP Tarayıcı</sys:String>
     <sys:String x:Key="Scanner.StartIp">Başlangıç IP</sys:String>
     <sys:String x:Key="Scanner.EndIp">Bitiş IP</sys:String>
-    <sys:String x:Key="Scanner.TimeoutMs">Timeout ms</sys:String>
+    <sys:String x:Key="Scanner.TimeoutMs">Zaman aşımı (ms)</sys:String>
     <sys:String x:Key="Scanner.MaxParallel">Paralel</sys:String>
     <sys:String x:Key="Scanner.StartButton">Tara</sys:String>
     <sys:String x:Key="Scanner.StopButton">Durdur</sys:String>
@@ -95,7 +93,7 @@
     <sys:String x:Key="Scanner.UseTcpProbe">Port yoklama</sys:String>
     <sys:String x:Key="Monitor.Enable">Sürekli izle</sys:String>
     <sys:String x:Key="Monitor.EnableTooltip">Belirtilen aralıkta yeniden tarar ve ağa yeni bir cihaz girdiğinde bildirim gösterir.</sys:String>
-    <sys:String x:Key="Monitor.Interval">Dakika</sys:String>
+    <sys:String x:Key="Monitor.Interval">Aralık (dk)</sys:String>
     <sys:String x:Key="Monitor.Started">İzleme açık — her {0} dakikada bir taranacak.</sys:String>
     <sys:String x:Key="Monitor.NewDeviceTitle">Yeni cihaz bulundu</sys:String>
     <sys:String x:Key="Profiles.ExportTitle">Profilleri Dışa Aktar</sys:String>
@@ -108,10 +106,9 @@
     <sys:String x:Key="Status.ImportEmpty">Dosyada geçerli profil bulunamadı.</sys:String>
     <sys:String x:Key="EditBar.Presets">Hazır ayar</sys:String>
     <sys:String x:Key="EditBar.PresetsTooltip">Üretici alt ağına göre alanları doldurur. Uygulamak için yine "Uygula"ya basmanız gerekir.</sys:String>
-    <sys:String x:Key="Status.PresetLoaded">"{0}" hazır ayarı yüklendi — kontrol edip Uygula'ya basın.</sys:String>
     <sys:String x:Key="Scanner.UseTcpProbeTooltip">TCP port yoklaması — alt ağ dışı cihazları bulur ve cihaz tipini tahmin eder (Modbus, S7, RTSP…).</sys:String>
-    <sys:String x:Key="Scanner.StatusOnline">✓ Online</sys:String>
-    <sys:String x:Key="Scanner.StatusOffline">— Offline</sys:String>
+    <sys:String x:Key="Scanner.StatusOnline">Çevrimiçi</sys:String>
+    <sys:String x:Key="Scanner.StatusOffline">Çevrimdışı</sys:String>
 
     <!-- ── PingWindow ── -->
     <sys:String x:Key="Ping.Title">Ping</sys:String>
@@ -126,9 +123,9 @@
 
     <!-- ── Settings window ── -->
     <sys:String x:Key="Settings.Title">Ayarlar</sys:String>
-    <sys:String x:Key="Settings.ColorTheme">Renk Teması</sys:String>
-    <sys:String x:Key="Settings.ThemeDark">Koyu  (Varsayılan)</sys:String>
-    <sys:String x:Key="Settings.ThemeDarkBlue">Koyu Mavi</sys:String>
+    <sys:String x:Key="Settings.ColorTheme">Uygulama teması</sys:String>
+    <sys:String x:Key="Settings.ThemeSystem">Sistem ayarını kullan</sys:String>
+    <sys:String x:Key="Settings.ThemeDark">Koyu</sys:String>
     <sys:String x:Key="Settings.ThemeLight">Açık</sys:String>
     <sys:String x:Key="Settings.Language">Dil</sys:String>
     <sys:String x:Key="Settings.LanguageSystem">Sistem dili</sys:String>
@@ -157,7 +154,6 @@
     <sys:String x:Key="Notify.InvalidInput">Geçersiz Giriş</sys:String>
 
     <!-- ── Status messages ── -->
-    <sys:String x:Key="Status.Refreshed">Yenilendi — {0}</sys:String>
     <sys:String x:Key="Status.DhcpEnabled">DHCP etkinleştirildi.</sys:String>
     <sys:String x:Key="Status.IpApplied">IP uygulandı: {0}</sys:String>
     <sys:String x:Key="Status.ProfileApplied">Profil uygulandı: {0}</sys:String>
@@ -169,9 +165,9 @@
     <sys:String x:Key="Status.RevertedDhcp">DHCP'ye geri alındı.</sys:String>
     <sys:String x:Key="Status.RevertedIp">Geri alındı: {0}</sys:String>
     <sys:String x:Key="Status.RevertError">Geri alma hatası: {0}</sys:String>
-    <sys:String x:Key="Status.ErrorPrefix">Hata: {0}</sys:String>
     <sys:String x:Key="Status.CsvExported">CSV kaydedildi: {0}</sys:String>
     <sys:String x:Key="Status.Copied">Kopyalandı: {0}</sys:String>
+    <sys:String x:Key="Status.CopyFailed">Panoya kopyalanamadı.</sys:String>
     <sys:String x:Key="Status.ScanComplete">Tamamlandı — {0} aktif cihaz bulundu</sys:String>
     <sys:String x:Key="Status.ScanProgress">{0}/{1} taranan — {2} aktif cihaz</sys:String>
     <sys:String x:Key="Status.ScanStopping">Durduruluyor…</sys:String>

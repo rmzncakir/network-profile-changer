@@ -3,13 +3,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         Title="{DynamicResource Settings.Title}"
-        Width="360" Height="500"
+        Width="460" Height="380"
+        MinWidth="400" MinHeight="340"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner"
         ShowInTaskbar="False"
         ExtendsContentIntoTitleBar="True"
-        Background="{DynamicResource BackgroundBrush}"
-        Foreground="{DynamicResource TextBrush}">
+        WindowBackdropType="Mica">
 
   <Grid>
     <Grid.RowDefinitions>
@@ -18,119 +18,51 @@
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
 
-    <!-- TitleBar -->
-    <ui:TitleBar Grid.Row="0"
-                 Background="{DynamicResource TitleBarBrush}"
-                 Foreground="{DynamicResource TextBrush}"
-                 ShowMaximize="False"
-                 ShowMinimize="False">
-      <ui:TitleBar.Header>
-        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0">
-          <ui:SymbolIcon Symbol="Settings20" FontSize="14"
-                         Foreground="{DynamicResource AccentBrush}" Margin="0,0,8,0"/>
-          <TextBlock Text="{DynamicResource Settings.Title}" FontSize="13" FontWeight="SemiBold"
-                     Foreground="{DynamicResource TextBrush}"/>
-        </StackPanel>
-      </ui:TitleBar.Header>
-    </ui:TitleBar>
+    <ui:TitleBar Grid.Row="0" Title="{DynamicResource Settings.Title}"
+                 ShowMaximize="False" ShowMinimize="False"/>
 
-    <!-- Settings content -->
     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-      <StackPanel Margin="20,14">
+      <StackPanel Margin="20,8,20,20">
 
-        <!-- ── Tema ── -->
-        <TextBlock Text="{DynamicResource Settings.ColorTheme}" FontSize="11" FontWeight="SemiBold"
-                   Foreground="{DynamicResource SubtextBrush}" Margin="0,0,0,10"/>
+        <Border Style="{StaticResource Card}" Margin="0,0,0,4">
+          <DockPanel>
+            <ComboBox x:Name="CmbTheme" DockPanel.Dock="Right" MinWidth="190"
+                      VerticalAlignment="Center"
+                      AutomationProperties.Name="{DynamicResource Settings.ColorTheme}"
+                      SelectionChanged="Theme_Changed">
+              <ComboBoxItem Tag="System" Content="{DynamicResource Settings.ThemeSystem}"/>
+              <ComboBoxItem Tag="Light"  Content="{DynamicResource Settings.ThemeLight}"/>
+              <ComboBoxItem Tag="Dark"   Content="{DynamicResource Settings.ThemeDark}"/>
+            </ComboBox>
+            <TextBlock Text="{DynamicResource Settings.ColorTheme}" FontSize="14" VerticalAlignment="Center"/>
+          </DockPanel>
+        </Border>
 
-        <RadioButton x:Name="RbDark"
-                     GroupName="Theme" Margin="0,0,0,8"
-                     Checked="Theme_Checked" Tag="Dark">
-          <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-            <ui:SymbolIcon Symbol="WeatherMoon20" FontSize="16" Margin="0,0,8,0"
-                           Foreground="{DynamicResource SubtextBrush}"/>
-            <TextBlock Text="{DynamicResource Settings.ThemeDark}" FontSize="13" VerticalAlignment="Center"/>
-          </StackPanel>
-        </RadioButton>
+        <Border Style="{StaticResource Card}" Margin="0,0,0,4">
+          <DockPanel>
+            <ComboBox x:Name="CmbLanguage" DockPanel.Dock="Right" MinWidth="190"
+                      VerticalAlignment="Center"
+                      AutomationProperties.Name="{DynamicResource Settings.Language}"
+                      SelectionChanged="Language_Changed">
+              <ComboBoxItem x:Name="LangSystemItem" Tag="System"/>
+              <ComboBoxItem Tag="tr" Content="{DynamicResource Settings.LanguageTurkish}"/>
+              <ComboBoxItem Tag="en" Content="{DynamicResource Settings.LanguageEnglish}"/>
+            </ComboBox>
+            <TextBlock Text="{DynamicResource Settings.Language}" FontSize="14" VerticalAlignment="Center"/>
+          </DockPanel>
+        </Border>
 
-        <RadioButton x:Name="RbDarkBlue"
-                     GroupName="Theme" Margin="0,0,0,8"
-                     Checked="Theme_Checked" Tag="DarkBlue">
-          <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-            <ui:SymbolIcon Symbol="Color20" FontSize="16" Margin="0,0,8,0"
-                           Foreground="#7C4DFF"/>
-            <TextBlock Text="{DynamicResource Settings.ThemeDarkBlue}" FontSize="13" VerticalAlignment="Center"/>
-          </StackPanel>
-        </RadioButton>
-
-        <RadioButton x:Name="RbLight"
-                     GroupName="Theme" Margin="0,0,0,4"
-                     Checked="Theme_Checked" Tag="Light">
-          <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-            <ui:SymbolIcon Symbol="WeatherSunny20" FontSize="16" Margin="0,0,8,0"
-                           Foreground="#F4A10A"/>
-            <TextBlock Text="{DynamicResource Settings.ThemeLight}" FontSize="13" VerticalAlignment="Center"/>
-          </StackPanel>
-        </RadioButton>
-
-        <!-- ── Separator ── -->
-        <Rectangle Height="1" Fill="{DynamicResource BorderBrush}" Margin="0,14,0,14"/>
-
-        <!-- ── Dil / Language ── -->
-        <TextBlock Text="{DynamicResource Settings.Language}" FontSize="11" FontWeight="SemiBold"
-                   Foreground="{DynamicResource SubtextBrush}" Margin="0,0,0,10"/>
-
-        <RadioButton x:Name="RbLangSystem"
-                     GroupName="Language" Margin="0,0,0,8"
-                     Checked="Language_Checked" Tag="System">
-          <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-            <ui:SymbolIcon Symbol="Globe20" FontSize="16" Margin="0,0,8,0"
-                           Foreground="{DynamicResource SubtextBrush}"/>
-            <TextBlock Text="{DynamicResource Settings.LanguageSystem}" FontSize="13" VerticalAlignment="Center"/>
-            <TextBlock x:Name="LangSystemHint" FontSize="11" Margin="6,0,0,0"
-                       Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center"/>
-          </StackPanel>
-        </RadioButton>
-
-        <RadioButton x:Name="RbLangTurkish"
-                     GroupName="Language" Margin="0,0,0,8"
-                     Checked="Language_Checked" Tag="tr">
-          <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-            <TextBlock Text="🇹🇷" FontSize="14" Margin="2,0,8,0" VerticalAlignment="Center"/>
-            <TextBlock Text="{DynamicResource Settings.LanguageTurkish}" FontSize="13" VerticalAlignment="Center"/>
-          </StackPanel>
-        </RadioButton>
-
-        <RadioButton x:Name="RbLangEnglish"
-                     GroupName="Language" Margin="0,0,0,4"
-                     Checked="Language_Checked" Tag="en">
-          <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-            <TextBlock Text="🇬🇧" FontSize="14" Margin="2,0,8,0" VerticalAlignment="Center"/>
-            <TextBlock Text="{DynamicResource Settings.LanguageEnglish}" FontSize="13" VerticalAlignment="Center"/>
-          </StackPanel>
-        </RadioButton>
-
-        <!-- ── Separator ── -->
-        <Rectangle Height="1" Fill="{DynamicResource BorderBrush}" Margin="0,14,0,14"/>
-
-        <!-- ── Başlangıç ── -->
-        <TextBlock Text="{DynamicResource Settings.Startup}" FontSize="11" FontWeight="SemiBold"
-                   Foreground="{DynamicResource SubtextBrush}" Margin="0,0,0,10"/>
-
-        <Border Background="{DynamicResource SurfaceBrush}"
-                BorderBrush="{DynamicResource BorderBrush}"
-                BorderThickness="1" CornerRadius="6" Padding="12,10">
+        <Border Style="{StaticResource Card}">
           <DockPanel>
             <ui:ToggleSwitch x:Name="TogStartup"
-                             DockPanel.Dock="Right"
-                             IsChecked="False"
+                             DockPanel.Dock="Right" VerticalAlignment="Center"
+                             AutomationProperties.Name="{DynamicResource Settings.StartupTitle}"
                              Checked="StartupToggle_Changed"
                              Unchecked="StartupToggle_Changed"/>
             <StackPanel VerticalAlignment="Center">
-              <TextBlock Text="{DynamicResource Settings.StartupTitle}" FontSize="13"
-                         Foreground="{DynamicResource TextBrush}"/>
+              <TextBlock Text="{DynamicResource Settings.StartupTitle}" FontSize="14"/>
               <TextBlock Text="{DynamicResource Settings.StartupHint}"
-                         FontSize="11" Foreground="{DynamicResource SubtextBrush}"
-                         Margin="0,2,0,0"/>
+                         Style="{StaticResource CaptionText}" Margin="0,2,0,0"/>
             </StackPanel>
           </DockPanel>
         </Border>
@@ -138,14 +70,9 @@
       </StackPanel>
     </ScrollViewer>
 
-    <!-- Bottom bar -->
-    <Border Grid.Row="2"
-            Background="{DynamicResource TitleBarBrush}"
-            BorderBrush="{DynamicResource BorderBrush}"
-            BorderThickness="0,1,0,0"
-            Padding="12,8">
-      <ui:Button Content="{DynamicResource Common.Close}" Appearance="Secondary"
-                 HorizontalAlignment="Right" Padding="16,6"
+    <Border Grid.Row="2" Style="{StaticResource FooterBar}">
+      <ui:Button Content="{DynamicResource Common.Close}"
+                 HorizontalAlignment="Right" MinWidth="96"
                  Click="CloseClick" IsCancel="True"/>
     </Border>
   </Grid>

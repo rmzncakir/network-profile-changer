@@ -6,12 +6,11 @@
         xmlns:views="clr-namespace:NetworkProfileManager.Views"
         Title="{DynamicResource App.Title}"
         Icon="Assets/icon.ico"
-        Width="960" Height="660"
-        MinWidth="720" MinHeight="520"
+        Width="1000" Height="720"
+        MinWidth="760" MinHeight="520"
         WindowStartupLocation="CenterScreen"
         ExtendsContentIntoTitleBar="True"
-        Background="{DynamicResource BackgroundBrush}"
-        Foreground="{DynamicResource TextBrush}">
+        WindowBackdropType="Mica">
 
   <ui:FluentWindow.DataContext>
     <vm:MainViewModel/>
@@ -21,269 +20,331 @@
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
 
-    <!-- ═══ Row 0: TitleBar ═══ -->
-    <ui:TitleBar Grid.Row="0"
-                 Title="{DynamicResource App.Title}"
-                 Background="{DynamicResource TitleBarBrush}"
-                 Foreground="{DynamicResource TextBrush}"
-                 ShowMaximize="True"
-                 ShowMinimize="True">
-      <ui:TitleBar.Header>
-        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="4,0">
-          <TextBlock Text="⬡" Foreground="{DynamicResource AccentBrush}"
-                     FontSize="16" Margin="0,0,8,0" VerticalAlignment="Center"/>
-          <TextBlock Text="{DynamicResource App.Title}"
-                     Foreground="{DynamicResource TextBrush}"
-                     FontSize="13" FontWeight="Medium" VerticalAlignment="Center"/>
-        </StackPanel>
-      </ui:TitleBar.Header>
-      <!-- TrailingContent = right side before window buttons, always hit-testable -->
+    <ui:TitleBar Grid.Row="0" Title="{DynamicResource App.Title}">
+      <ui:TitleBar.Icon>
+        <ui:ImageIcon Source="pack://application:,,,/Assets/icon.ico" Width="16" Height="16"/>
+      </ui:TitleBar.Icon>
       <ui:TitleBar.TrailingContent>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,6,0">
-          <ui:Button Appearance="Transparent" Padding="10,6" Margin="0,0,2,0"
-                     FontSize="11" Click="OpenScannerClick"
-                     ToolTip="{DynamicResource MainWindow.IpScannerTooltip}">
-            <StackPanel Orientation="Horizontal">
-              <ui:SymbolIcon Symbol="SearchInfo20" FontSize="13" Margin="0,0,6,0"/>
-              <TextBlock Text="{DynamicResource MainWindow.IpScannerButton}" VerticalAlignment="Center"/>
-            </StackPanel>
-          </ui:Button>
-          <ui:Button Appearance="Transparent" Padding="8,6"
+          <ui:Button Style="{StaticResource SubtleButton}" Padding="10,6" Margin="0,0,2,0"
+                     Icon="{ui:SymbolIcon SearchInfo20}"
+                     Content="{DynamicResource MainWindow.IpScannerButton}"
+                     ToolTip="{DynamicResource MainWindow.IpScannerTooltip}"
+                     Click="OpenScannerClick"/>
+          <ui:Button Style="{StaticResource SubtleButton}" Padding="8,6"
+                     Icon="{ui:SymbolIcon Settings20}"
                      ToolTip="{DynamicResource MainWindow.SettingsTooltip}"
                      AutomationProperties.Name="{DynamicResource MainWindow.SettingsTooltip}"
-                     Click="OpenThemeClick">
-            <ui:SymbolIcon Symbol="Settings20" FontSize="14"/>
-          </ui:Button>
+                     Click="OpenThemeClick"/>
         </StackPanel>
       </ui:TitleBar.TrailingContent>
     </ui:TitleBar>
 
-    <!-- ═══ Row 1: Main panels ═══ -->
-    <Grid Grid.Row="1" x:Name="MainContent"
-          Background="{DynamicResource BackgroundBrush}">
+    <Grid Grid.Row="1">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="290" MinWidth="200"/>
-        <ColumnDefinition Width="6"/>
-        <ColumnDefinition Width="*" MinWidth="240"/>
+        <ColumnDefinition Width="280"/>
+        <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
 
-      <!-- Left: Adapter list -->
-      <Border Grid.Column="0"
-              BorderBrush="{DynamicResource BorderBrush}"
-              BorderThickness="0,0,1,0">
-        <views:AdapterListPanel/>
-      </Border>
+      <!-- Adapters sit directly on Mica, like a navigation pane -->
+      <views:AdapterListPanel Grid.Column="0"/>
 
-      <!-- Modern splitter -->
-      <GridSplitter Grid.Column="1" Width="6"
-                    HorizontalAlignment="Stretch"
-                    Background="Transparent"
-                    Cursor="SizeWE" ShowsPreview="False">
-        <GridSplitter.Template>
-          <ControlTemplate TargetType="GridSplitter">
-            <Border Background="Transparent">
-              <Rectangle Width="1" Fill="{DynamicResource BorderBrush}" HorizontalAlignment="Center"/>
-            </Border>
-          </ControlTemplate>
-        </GridSplitter.Template>
-      </GridSplitter>
+      <!-- Selected adapter page: the content layer over Mica -->
+      <Border Grid.Column="1"
+              Background="{DynamicResource LayerFillColorDefaultBrush}"
+              BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+              BorderThickness="1,1,0,0"
+              CornerRadius="8,0,0,0">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
 
-      <!-- Right: Profile + History -->
-      <DockPanel Grid.Column="2" x:Name="RightPanel"
-                 Background="{DynamicResource BackgroundBrush}">
-        <Border DockPanel.Dock="Top" Height="280"
-                BorderBrush="{DynamicResource BorderBrush}"
-                BorderThickness="0,0,0,1">
-          <views:ProfilePanel/>
-        </Border>
-        <views:HistoryPanel/>
-      </DockPanel>
-    </Grid>
+          <TextBlock Grid.RowSpan="2"
+                     Text="{DynamicResource Profiles.NoAdapterSelected}"
+                     FontSize="14"
+                     HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock.Style>
+              <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionText}">
+                <Setter Property="Visibility" Value="Collapsed"/>
+                <Style.Triggers>
+                  <DataTrigger Binding="{Binding SelectedAdapter}" Value="{x:Null}">
+                    <Setter Property="Visibility" Value="Visible"/>
+                  </DataTrigger>
+                </Style.Triggers>
+              </Style>
+            </TextBlock.Style>
+          </TextBlock>
 
-    <!-- ═══ Row 2: IP Edit bar ═══ -->
-    <Border Grid.Row="2"
-            Background="{DynamicResource SurfaceBrush}"
-            BorderBrush="{DynamicResource BorderBrush}"
-            BorderThickness="0,1,0,0"
-            Padding="16,12">
-      <Grid>
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="1"/>
-          <ColumnDefinition Width="260"/>
-        </Grid.ColumnDefinitions>
+          <ScrollViewer x:Name="RightPanel" Grid.Row="0"
+                        VerticalScrollBarVisibility="Auto"
+                        HorizontalScrollBarVisibility="Disabled">
+            <ScrollViewer.Style>
+              <Style TargetType="ScrollViewer" BasedOn="{StaticResource {x:Type ScrollViewer}}">
+                <Style.Triggers>
+                  <DataTrigger Binding="{Binding SelectedAdapter}" Value="{x:Null}">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                  </DataTrigger>
+                </Style.Triggers>
+              </Style>
+            </ScrollViewer.Style>
+            <StackPanel Margin="32,24,32,32">
 
-        <!-- IP Form -->
-        <StackPanel Grid.Column="0"
-                    IsEnabled="{Binding SelectedAdapter, Converter={StaticResource NullToBool}}">
-          <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-            <RadioButton Content="{DynamicResource EditBar.Dhcp}"
-                         IsChecked="{Binding SelectedAdapter.EditIsDhcp, FallbackValue=False}"
-                         Margin="0,0,20,0"/>
-            <RadioButton Content="{DynamicResource EditBar.Static}"
-                         IsChecked="{Binding SelectedAdapter.EditIsStatic, FallbackValue=True}"/>
-            <ui:DropDownButton Content="{DynamicResource EditBar.Presets}"
-                               Appearance="Secondary" Margin="20,0,0,0"
-                               Padding="10,3" FontSize="11"
-                               Icon="{ui:SymbolIcon Flash20}"
-                               ToolTip="{DynamicResource EditBar.PresetsTooltip}">
-              <ui:DropDownButton.Flyout>
-                <ContextMenu ItemsSource="{Binding VendorPresets}">
-                  <ContextMenu.ItemContainerStyle>
-                    <Style TargetType="MenuItem">
-                      <Setter Property="Header" Value="{Binding Name}"/>
-                      <Setter Property="InputGestureText" Value="{Binding Description}"/>
-                      <Setter Property="Command"
-                              Value="{Binding DataContext.ApplyPresetCommand,
-                                      RelativeSource={RelativeSource AncestorType=Window}}"/>
-                      <Setter Property="CommandParameter" Value="{Binding}"/>
-                    </Style>
-                  </ContextMenu.ItemContainerStyle>
-                </ContextMenu>
-              </ui:DropDownButton.Flyout>
-            </ui:DropDownButton>
-          </StackPanel>
-          <WrapPanel Orientation="Horizontal">
-            <StackPanel Orientation="Horizontal" Margin="0,0,10,4">
-              <ui:TextBox Width="148" PlaceholderText="{DynamicResource EditBar.Ip}"
-                          Text="{Binding SelectedAdapter.EditIp, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
-                          IsEnabled="{Binding SelectedAdapter.EditIsStatic, FallbackValue=False}"/>
+              <!-- ── Adapter header: name, then its live settings as plain facts ── -->
+              <TextBlock Text="{Binding SelectedAdapter.Name}" Style="{StaticResource PageTitleText}"/>
+              <TextBlock Text="{Binding SelectedAdapter.Description}"
+                         Style="{StaticResource CaptionText}" Margin="0,2,0,16"/>
+
+              <WrapPanel Margin="0,0,0,8">
+                <StackPanel Margin="0,0,32,12">
+                  <TextBlock Text="{DynamicResource EditBar.Ip}" Style="{StaticResource FieldLabel}"/>
+                  <StackPanel Orientation="Horizontal">
+                    <TextBlock x:Name="CurrentIpText" FontSize="14" VerticalAlignment="Center">
+                      <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                          <Setter Property="Text" Value="{Binding SelectedAdapter.CurrentIp}"/>
+                          <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedAdapter.IsConnected}" Value="False">
+                              <Setter Property="Text" Value="{DynamicResource Adapters.NotConnected}"/>
+                              <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}"/>
+                            </DataTrigger>
+                          </Style.Triggers>
+                        </Style>
+                      </TextBlock.Style>
+                    </TextBlock>
+                    <ui:Button Style="{StaticResource SubtleButton}" Padding="4" Margin="4,0,0,0"
+                               VerticalAlignment="Center"
+                               Icon="{ui:SymbolIcon Copy16}"
+                               Tag="{Binding SelectedAdapter.CurrentIp}"
+                               ToolTip="{DynamicResource Adapters.CopyIpTooltip}"
+                               AutomationProperties.Name="{DynamicResource Adapters.CopyIpTooltip}"
+                               Visibility="{Binding SelectedAdapter.IsConnected, Converter={StaticResource BoolToVis}}"
+                               Click="CopyIp_Click"/>
+                  </StackPanel>
+                </StackPanel>
+                <StackPanel Margin="0,0,32,12">
+                  <TextBlock Text="{DynamicResource EditBar.Subnet}" Style="{StaticResource FieldLabel}"/>
+                  <TextBlock Text="{Binding SelectedAdapter.CurrentSubnet}" FontSize="14"/>
+                </StackPanel>
+                <StackPanel Margin="0,0,32,12">
+                  <TextBlock Text="{DynamicResource EditBar.Gateway}" Style="{StaticResource FieldLabel}"/>
+                  <TextBlock Text="{Binding SelectedAdapter.CurrentGateway}" FontSize="14"/>
+                </StackPanel>
+                <StackPanel Margin="0,0,32,12">
+                  <TextBlock Text="{DynamicResource Adapter.Dns}" Style="{StaticResource FieldLabel}"/>
+                  <TextBlock Text="{Binding SelectedAdapter.CurrentDnsDisplay}" FontSize="14"/>
+                </StackPanel>
+                <StackPanel Margin="0,0,32,12">
+                  <TextBlock Text="{DynamicResource Adapter.Mode}" Style="{StaticResource FieldLabel}"/>
+                  <TextBlock FontSize="14">
+                    <TextBlock.Style>
+                      <Style TargetType="TextBlock">
+                        <Setter Property="Text" Value="{DynamicResource EditBar.Static}"/>
+                        <Style.Triggers>
+                          <DataTrigger Binding="{Binding SelectedAdapter.IsDhcp}" Value="True">
+                            <Setter Property="Text" Value="{DynamicResource EditBar.Dhcp}"/>
+                          </DataTrigger>
+                        </Style.Triggers>
+                      </Style>
+                    </TextBlock.Style>
+                  </TextBlock>
+                </StackPanel>
+              </WrapPanel>
+
+              <!-- ── Profiles ── -->
+              <views:ProfilePanel/>
+
+              <!-- ── Ping ── -->
+              <TextBlock Text="{DynamicResource EditBar.PingHeader}"
+                         Style="{StaticResource SectionHeaderText}" Margin="0,28,0,8"/>
+              <Border Style="{StaticResource Card}">
+                <StackPanel>
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*"/>
+                      <ColumnDefinition Width="Auto"/>
+                      <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:TextBox Grid.Column="0"
+                                PlaceholderText="{DynamicResource EditBar.PingPlaceholder}"
+                                Text="{Binding SelectedAdapter.PingTarget, UpdateSourceTrigger=PropertyChanged, FallbackValue=''}"/>
+                    <ui:Button Grid.Column="1" Margin="8,0,0,0" MinWidth="80"
+                               Content="{DynamicResource EditBar.PingButton}"
+                               Command="{Binding PingCommand}"/>
+                    <ui:Button Grid.Column="2" Margin="4,0,0,0" Padding="8,6"
+                               Style="{StaticResource SubtleButton}"
+                               Icon="{ui:SymbolIcon Open20}"
+                               ToolTip="{DynamicResource EditBar.PingWindowTooltip}"
+                               AutomationProperties.Name="{DynamicResource EditBar.PingWindowTooltip}"
+                               Click="OpenPingWindowClick"/>
+                  </Grid>
+
+                  <!-- Result: the dot carries the colour, the text stays neutral -->
+                  <StackPanel Orientation="Horizontal" Margin="2,10,0,0">
+                    <StackPanel.Style>
+                      <Style TargetType="StackPanel">
+                        <Style.Triggers>
+                          <DataTrigger Binding="{Binding SelectedAdapter.PingResult}" Value="">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                          </DataTrigger>
+                        </Style.Triggers>
+                      </Style>
+                    </StackPanel.Style>
+                    <Ellipse Width="8" Height="8" VerticalAlignment="Center" Margin="0,0,8,0">
+                      <Ellipse.Style>
+                        <Style TargetType="Ellipse">
+                          <Setter Property="Fill" Value="{DynamicResource SystemFillColorCriticalBrush}"/>
+                          <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedAdapter.PingSuccess}" Value="True">
+                              <Setter Property="Fill" Value="{DynamicResource SystemFillColorSuccessBrush}"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding SelectedAdapter.IsPinging}" Value="True">
+                              <Setter Property="Fill" Value="{DynamicResource TextFillColorTertiaryBrush}"/>
+                            </DataTrigger>
+                          </Style.Triggers>
+                        </Style>
+                      </Ellipse.Style>
+                    </Ellipse>
+                    <TextBlock Text="{Binding SelectedAdapter.PingResult}" TextTrimming="CharacterEllipsis"/>
+                  </StackPanel>
+                </StackPanel>
+              </Border>
+
+              <!-- ── History ── -->
+              <views:HistoryPanel Margin="0,28,0,0"/>
             </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0,0,10,4">
-              <ui:TextBox Width="148" PlaceholderText="{DynamicResource EditBar.Subnet}"
-                          Text="{Binding SelectedAdapter.EditSubnet, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
-                          IsEnabled="{Binding SelectedAdapter.EditIsStatic, FallbackValue=False}"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0,0,10,4">
-              <ui:TextBox Width="148" PlaceholderText="{DynamicResource EditBar.Gateway}"
-                          Text="{Binding SelectedAdapter.EditGateway, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
-                          IsEnabled="{Binding SelectedAdapter.EditIsStatic, FallbackValue=False}"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0,0,10,4">
-              <ui:TextBox Width="148" PlaceholderText="{DynamicResource EditBar.PrimaryDns}"
-                          Text="{Binding SelectedAdapter.EditPrimaryDns, UpdateSourceTrigger=PropertyChanged}"
-                          IsEnabled="{Binding SelectedAdapter.EditIsStatic, FallbackValue=False}"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0,0,12,4">
-              <ui:TextBox Width="148" PlaceholderText="{DynamicResource EditBar.SecondaryDns}"
-                          Text="{Binding SelectedAdapter.EditSecondaryDns, UpdateSourceTrigger=PropertyChanged}"
-                          IsEnabled="{Binding SelectedAdapter.EditIsStatic, FallbackValue=False}"/>
-            </StackPanel>
-            <ui:Button Content="{DynamicResource Common.Apply}"
-                       Appearance="Primary"
-                       Padding="18,7" FontSize="13"
-                       VerticalAlignment="Bottom"
-                       Command="{Binding ApplyCommand}"/>
-          </WrapPanel>
-        </StackPanel>
+          </ScrollViewer>
 
-        <!-- Divider -->
-        <Rectangle Grid.Column="1" Fill="{DynamicResource BorderBrush}" Margin="8,0"/>
-
-        <!-- Ping section -->
-        <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="8,0,0,0">
-          <TextBlock Text="{DynamicResource EditBar.PingHeader}" Style="{StaticResource FieldLabel}"
-                     FontWeight="SemiBold" Margin="0,0,0,6"/>
-          <Grid>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-              <ColumnDefinition Width="8"/>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="4"/>
-              <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <ui:TextBox Grid.Column="0" PlaceholderText="{DynamicResource EditBar.PingPlaceholder}"
-                        Text="{Binding SelectedAdapter.PingTarget, UpdateSourceTrigger=PropertyChanged, FallbackValue=''}"
-                        IsEnabled="{Binding SelectedAdapter, Converter={StaticResource NullToBool}}"/>
-            <ui:Button Grid.Column="2" Content="{DynamicResource EditBar.PingButton}"
-                       Appearance="Secondary" Padding="10,5"
-                       Command="{Binding PingCommand}"/>
-            <ui:Button Grid.Column="4"
-                       Appearance="Transparent" Padding="8,5"
-                       ToolTip="{DynamicResource EditBar.PingWindowTooltip}"
-                       AutomationProperties.Name="{DynamicResource EditBar.PingWindowTooltip}"
-                       Click="OpenPingWindowClick"
-                       IsEnabled="{Binding SelectedAdapter, Converter={StaticResource NullToBool}}">
-              <ui:SymbolIcon Symbol="FullScreenMaximize20" FontSize="14"/>
-            </ui:Button>
-          </Grid>
-
-          <!-- Ping result badge -->
-          <Border Margin="0,6,0,0"
-                  Background="{DynamicResource BackgroundBrush}"
-                  BorderBrush="{DynamicResource BorderBrush}"
-                  BorderThickness="1" CornerRadius="4" Padding="8,5">
+          <!-- ── Manual configuration, pinned: vendor presets and Apply never scroll away ── -->
+          <Border Grid.Row="1"
+                  BorderBrush="{DynamicResource DividerStrokeColorDefaultBrush}"
+                  BorderThickness="0,1,0,0"
+                  Padding="32,14,32,18">
             <Border.Style>
               <Style TargetType="Border">
-                <Setter Property="Visibility" Value="Visible"/>
                 <Style.Triggers>
-                  <DataTrigger Binding="{Binding SelectedAdapter.PingResult}" Value="{x:Null}">
-                    <Setter Property="Visibility" Value="Collapsed"/>
-                  </DataTrigger>
-                  <DataTrigger Binding="{Binding SelectedAdapter.PingResult}" Value="">
-                    <Setter Property="Visibility" Value="Collapsed"/>
-                  </DataTrigger>
                   <DataTrigger Binding="{Binding SelectedAdapter}" Value="{x:Null}">
                     <Setter Property="Visibility" Value="Collapsed"/>
                   </DataTrigger>
                 </Style.Triggers>
               </Style>
             </Border.Style>
-            <StackPanel Orientation="Horizontal">
-              <Ellipse Width="7" Height="7" VerticalAlignment="Center" Margin="0,0,6,0"
-                       Fill="{Binding SelectedAdapter.PingSuccess, Converter={StaticResource StatusToColor}}"/>
-              <TextBlock Text="{Binding SelectedAdapter.PingResult}"
-                         FontSize="11" Foreground="{DynamicResource TextBrush}"
-                         TextTrimming="CharacterEllipsis"/>
+            <StackPanel>
+              <!-- One click fills the fields; it never applies on its own -->
+              <StackPanel Margin="0,0,0,10">
+                <TextBlock Text="{DynamicResource EditBar.Presets}"
+                           Style="{StaticResource FieldLabel}"
+                           ToolTip="{DynamicResource EditBar.PresetsTooltip}"/>
+                <ItemsControl ItemsSource="{Binding VendorPresets}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <WrapPanel/>
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <ui:Button Content="{Binding Name}" ToolTip="{Binding Description}"
+                                 FontSize="13" Padding="10,4" Margin="0,0,6,4"
+                                 Command="{Binding DataContext.ApplyPresetCommand,
+                                           RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                 CommandParameter="{Binding}"/>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+
+              <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                <RadioButton Content="{DynamicResource EditBar.Dhcp}"
+                             IsChecked="{Binding SelectedAdapter.EditIsDhcp, FallbackValue=False}"
+                             Margin="0,0,24,0"/>
+                <RadioButton Content="{DynamicResource EditBar.Static}"
+                             IsChecked="{Binding SelectedAdapter.EditIsStatic, FallbackValue=True}"/>
+              </StackPanel>
+
+              <Grid>
+                <Grid.Resources>
+                  <!-- Address fields only apply to a static setup; Apply shares the
+                       grid but must stay enabled, since it also applies DHCP. -->
+                  <Style x:Key="StaticOnlyField" TargetType="StackPanel">
+                    <Setter Property="IsEnabled" Value="{Binding SelectedAdapter.EditIsStatic, FallbackValue=False}"/>
+                  </Style>
+                </Grid.Resources>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="12"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="12"/>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="10"/>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Grid.Column="0" Style="{StaticResource StaticOnlyField}">
+                  <TextBlock Text="{DynamicResource EditBar.Ip}" Style="{StaticResource FieldLabel}"/>
+                  <ui:TextBox Text="{Binding SelectedAdapter.EditIp, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                              AutomationProperties.Name="{DynamicResource EditBar.Ip}"/>
+                </StackPanel>
+                <StackPanel Grid.Row="0" Grid.Column="2" Style="{StaticResource StaticOnlyField}">
+                  <TextBlock Text="{DynamicResource EditBar.Subnet}" Style="{StaticResource FieldLabel}"/>
+                  <ui:TextBox Text="{Binding SelectedAdapter.EditSubnet, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                              AutomationProperties.Name="{DynamicResource EditBar.Subnet}"/>
+                </StackPanel>
+                <StackPanel Grid.Row="0" Grid.Column="4" Style="{StaticResource StaticOnlyField}">
+                  <TextBlock Text="{DynamicResource EditBar.Gateway}" Style="{StaticResource FieldLabel}"/>
+                  <ui:TextBox Text="{Binding SelectedAdapter.EditGateway, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                              AutomationProperties.Name="{DynamicResource EditBar.Gateway}"/>
+                </StackPanel>
+                <StackPanel Grid.Row="2" Grid.Column="0" Style="{StaticResource StaticOnlyField}">
+                  <TextBlock Text="{DynamicResource EditBar.PrimaryDns}" Style="{StaticResource FieldLabel}"/>
+                  <ui:TextBox Text="{Binding SelectedAdapter.EditPrimaryDns, UpdateSourceTrigger=PropertyChanged}"
+                              AutomationProperties.Name="{DynamicResource EditBar.PrimaryDns}"/>
+                </StackPanel>
+                <StackPanel Grid.Row="2" Grid.Column="2" Style="{StaticResource StaticOnlyField}">
+                  <TextBlock Text="{DynamicResource EditBar.SecondaryDns}" Style="{StaticResource FieldLabel}"/>
+                  <ui:TextBox Text="{Binding SelectedAdapter.EditSecondaryDns, UpdateSourceTrigger=PropertyChanged}"
+                              AutomationProperties.Name="{DynamicResource EditBar.SecondaryDns}"/>
+                </StackPanel>
+
+                <!-- Apply takes the free slot next to the DNS fields -->
+                <ui:Button Grid.Row="2" Grid.Column="4"
+                           Content="{DynamicResource Common.Apply}"
+                           Appearance="Primary"
+                           HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
+                           Command="{Binding ApplyCommand}"/>
+              </Grid>
             </StackPanel>
           </Border>
-        </StackPanel>
-      </Grid>
-    </Border>
+        </Grid>
+      </Border>
+    </Grid>
 
-    <!-- ═══ Row 3: Status bar ═══ -->
-    <Border Grid.Row="3" Background="{DynamicResource TitleBarBrush}" Padding="14,5">
-      <DockPanel>
-        <ui:ProgressRing DockPanel.Dock="Right"
-                         Width="16" Height="16" Margin="0,0,8,0"
-                         IsIndeterminate="True"
-                         Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}"/>
-        <TextBlock Text="{Binding StatusMessage}"
-                   Foreground="{DynamicResource SubtextBrush}"
-                   FontSize="11" VerticalAlignment="Center"
-                   TextTrimming="CharacterEllipsis"/>
-      </DockPanel>
-    </Border>
-
-    <!-- Busy overlay -->
-    <Grid Grid.Row="1" Grid.RowSpan="2"
-          Background="{DynamicResource ScrimBrush}"
+    <!-- Busy overlay: blocks input while netsh runs (and UAC may be up) -->
+    <Grid Grid.Row="1"
+          Background="{DynamicResource SmokeFillColorDefaultBrush}"
           Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}">
-      <Border Background="{DynamicResource SurfaceBrush}"
-              CornerRadius="10" Padding="32,18"
-              HorizontalAlignment="Center" VerticalAlignment="Center"
-              BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+      <Border Background="{DynamicResource SolidBackgroundFillColorQuarternaryBrush}"
+              BorderBrush="{DynamicResource SurfaceStrokeColorFlyoutBrush}"
+              BorderThickness="1" CornerRadius="8" Padding="24,16"
+              HorizontalAlignment="Center" VerticalAlignment="Center">
         <StackPanel Orientation="Horizontal">
-          <ui:ProgressRing Width="22" Height="22" IsIndeterminate="True" Margin="0,0,12,0"/>
-          <TextBlock Text="{DynamicResource MainWindow.BusyApplying}"
-                     FontSize="14" Foreground="{DynamicResource TextBrush}"
-                     VerticalAlignment="Center"/>
+          <ui:ProgressRing Width="20" Height="20" IsIndeterminate="True" Margin="0,0,12,0"/>
+          <TextBlock Text="{DynamicResource MainWindow.BusyApplying}" VerticalAlignment="Center"/>
         </StackPanel>
       </Border>
     </Grid>
 
-    <!-- SnackbarPresenter -->
     <ui:SnackbarPresenter x:Name="RootSnackbar"
-                          Grid.Row="0" Grid.RowSpan="4"
+                          Grid.Row="0" Grid.RowSpan="2"
                           VerticalAlignment="Bottom"
                           Margin="16,0,16,12"/>
 
-    <!-- ContentDialogHost -->
     <ui:ContentDialogHost x:Name="RootDialogHost"
-                          Grid.Row="0" Grid.RowSpan="4"/>
+                          Grid.Row="0" Grid.RowSpan="2"/>
   </Grid>
 </ui:FluentWindow>

@@ -38,8 +38,7 @@ namespace NetworkProfileManager.Views
         {
             if (sender is System.Windows.FrameworkElement fe && fe.Tag is string ip && !string.IsNullOrEmpty(ip))
             {
-                Clipboard.SetText(ip);
-                _vm.StatusText = Helpers.Loc.Format("Status.Copied", ip);
+                _vm.StatusText = CopyStatus(ip, ip);
             }
         }
 
@@ -49,8 +48,12 @@ namespace NetworkProfileManager.Views
             var r = _vm.SelectedResult;
             string text = $"{r.IpAddress}\t{(r.IsOnline ? "Online" : "Offline")}\t{r.FoundByLabel}\t" +
                           $"{r.ResponseTimeLabel}\t{r.HostName}\t{r.DeviceType}\t{r.MacAddress}";
-            Clipboard.SetText(text);
-            _vm.StatusText = $"Kopyalandı: {r.IpAddress}";
+            _vm.StatusText = CopyStatus(text, r.IpAddress);
         }
+
+        private static string CopyStatus(string text, string label)
+            => Helpers.ClipboardHelper.TrySetText(text)
+                ? Helpers.Loc.Format("Status.Copied", label)
+                : Helpers.Loc.Get("Status.CopyFailed", "Panoya kopyalanamadı.");
     }
 }

@@ -1,6 +1,5 @@
 using System;
 using System.Windows;
-using System.Windows.Media;
 using System.Windows.Shapes;
 using NetworkProfileManager.ViewModels;
 using Wpf.Ui.Controls;
@@ -54,11 +53,7 @@ namespace NetworkProfileManager.Views
                         var adp = adapter;
                         var pvm = profile;
 
-                        string ipDisplay = pvm.Model.IsDhcp
-                            ? "DHCP"
-                            : pvm.Model.IpAddress;
-
-                        AddProfileItem(pvm.Name, ipDisplay, pvm.IsActive, () =>
+                        AddProfileItem(pvm.Name, pvm.IpDisplay, pvm.IsActive, () =>
                         {
                             Application.Current.Dispatcher.Invoke(() =>
                             {
@@ -82,30 +77,23 @@ namespace NetworkProfileManager.Views
             var icon = new SymbolIcon
             {
                 Symbol = symbol,
-                FontSize = 15,
-                Margin = new Thickness(0, 0, 10, 0),
+                FontSize = 16,
+                Margin = new Thickness(0, 0, 12, 0),
                 VerticalAlignment = VerticalAlignment.Center
             };
-            icon.SetResourceReference(ForegroundProperty, "SubtextBrush");
+            icon.SetResourceReference(ForegroundProperty, "TextFillColorSecondaryBrush");
 
             var label = new SWC.TextBlock
             {
                 Text = text,
                 VerticalAlignment = VerticalAlignment.Center
             };
-            label.SetResourceReference(ForegroundProperty, "TextBrush");
 
             var sp = new SWC.StackPanel { Orientation = SWC.Orientation.Horizontal };
             sp.Children.Add(icon);
             sp.Children.Add(label);
 
-            var btn = new SWC.Button
-            {
-                Content = sp,
-                Style = (Style)FindResource("TrayActionBtn")
-            };
-            btn.Click += (s, e) => { ClosePopup(); onClick(); };
-            ItemsPanel.Children.Add(btn);
+            AddButton(sp, onClick);
         }
 
         private void AddAdapterLabel(string name)
@@ -113,63 +101,60 @@ namespace NetworkProfileManager.Views
             var tb = new SWC.TextBlock
             {
                 Text = name,
-                FontSize = 10,
-                FontWeight = FontWeights.SemiBold,
-                Margin = new Thickness(14, 6, 14, 2),
+                FontSize = 12,
+                Margin = new Thickness(12, 8, 12, 2),
                 TextTrimming = TextTrimming.CharacterEllipsis
             };
-            tb.SetResourceReference(ForegroundProperty, "SubtextBrush");
+            tb.SetResourceReference(ForegroundProperty, "TextFillColorSecondaryBrush");
             ItemsPanel.Children.Add(tb);
         }
 
         private void AddProfileItem(string name, string ipDisplay, bool isActive, Action onClick)
         {
-            var dot = new Ellipse
+            // Like a checked menu item: the active profile gets a check, the
+            // others keep the same indent so names line up.
+            var check = new SymbolIcon
             {
-                Width = 7,
-                Height = 7,
-                Margin = new Thickness(0, 2, 8, 0),
-                VerticalAlignment = VerticalAlignment.Top,
-                Visibility = isActive ? Visibility.Visible : Visibility.Collapsed
+                Symbol = SymbolRegular.Checkmark16,
+                FontSize = 16,
+                Margin = new Thickness(0, 0, 12, 0),
+                VerticalAlignment = VerticalAlignment.Center,
+                Visibility = isActive ? Visibility.Visible : Visibility.Hidden
             };
-            dot.SetResourceReference(Shape.FillProperty, "AccentBrush");
 
             var nameBlock = new SWC.TextBlock
             {
                 Text = name,
-                TextTrimming = TextTrimming.CharacterEllipsis,
-                FontSize = 12
+                TextTrimming = TextTrimming.CharacterEllipsis
             };
-            nameBlock.SetResourceReference(ForegroundProperty, "TextBrush");
 
             var ipBlock = new SWC.TextBlock
             {
                 Text = ipDisplay,
-                FontSize = 10,
-                FontFamily = new FontFamily("Consolas"),
-                Margin = new Thickness(0, 1, 0, 0),
+                FontSize = 12,
                 Visibility = string.IsNullOrEmpty(ipDisplay)
                                  ? Visibility.Collapsed
                                  : Visibility.Visible
             };
-            ipBlock.SetResourceReference(ForegroundProperty, "SubtextBrush");
+            ipBlock.SetResourceReference(ForegroundProperty, "TextFillColorSecondaryBrush");
 
             var textStack = new SWC.StackPanel { Orientation = SWC.Orientation.Vertical };
             textStack.Children.Add(nameBlock);
             textStack.Children.Add(ipBlock);
 
-            var sp = new SWC.StackPanel
-            {
-                Orientation = SWC.Orientation.Horizontal,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-            sp.Children.Add(dot);
+            var sp = new SWC.StackPanel { Orientation = SWC.Orientation.Horizontal };
+            sp.Children.Add(check);
             sp.Children.Add(textStack);
 
+            AddButton(sp, onClick);
+        }
+
+        private void AddButton(object content, Action onClick)
+        {
             var btn = new SWC.Button
             {
-                Content = sp,
-                Style = (Style)FindResource("TrayProfileBtn")
+                Content = content,
+                Style = (Style)FindResource("TrayActionBtn")
             };
             btn.Click += (s, e) => { ClosePopup(); onClick(); };
             ItemsPanel.Children.Add(btn);
@@ -177,8 +162,8 @@ namespace NetworkProfileManager.Views
 
         private void AddSeparator()
         {
-            var rect = new Rectangle { Height = 1, Margin = new Thickness(8, 4, 8, 4) };
-            rect.SetResourceReference(Shape.FillProperty, "BorderBrush");
+            var rect = new Rectangle { Height = 1, Margin = new Thickness(-4, 4, -4, 4) };
+            rect.SetResourceReference(Shape.FillProperty, "DividerStrokeColorDefaultBrush");
             ItemsPanel.Children.Add(rect);
         }
 

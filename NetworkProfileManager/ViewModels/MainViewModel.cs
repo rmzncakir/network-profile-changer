@@ -21,7 +21,6 @@ namespace NetworkProfileManager.ViewModels
 
         private AdapterViewModel? _selectedAdapter;
         private bool _isLoading;
-        private string _statusMessage = Helpers.Loc.Get("Common.Ready", "Hazır");
 
         public ObservableCollection<AdapterViewModel> Adapters { get; } = new ObservableCollection<AdapterViewModel>();
 
@@ -37,19 +36,20 @@ namespace NetworkProfileManager.ViewModels
         public AdapterViewModel? SelectedAdapter
         {
             get => _selectedAdapter;
-            set { _selectedAdapter = value; OnPropertyChanged(); }
+            set
+            {
+                // Refresh() re-selects the same adapter after every apply; that is
+                // not a change and must not reset the page (scroll, fade).
+                if (ReferenceEquals(_selectedAdapter, value)) return;
+                _selectedAdapter = value;
+                OnPropertyChanged();
+            }
         }
 
         public bool IsLoading
         {
             get => _isLoading;
             set { _isLoading = value; OnPropertyChanged(); }
-        }
-
-        public string StatusMessage
-        {
-            get => _statusMessage;
-            set { _statusMessage = value; OnPropertyChanged(); }
         }
 
         public ICommand RefreshCommand { get; }
@@ -136,7 +136,6 @@ namespace NetworkProfileManager.ViewModels
             SelectedAdapter = Adapters.FirstOrDefault(a => a.Name == selectedName)
                            ?? Adapters.FirstOrDefault();
 
-            StatusMessage = Helpers.Loc.Format("Status.Refreshed", DateTime.Now.ToString("HH:mm:ss"));
         }
 
         /// <summary>
@@ -150,7 +149,7 @@ namespace NetworkProfileManager.ViewModels
             Action netshAction,
             Func<HistoryEntry>? buildEntry,
             Func<string> successMsg,
-            string errorKey = "Status.ErrorPrefix")
+            string? errorKey = null)
         {
             IsLoading = true;
             try
@@ -167,20 +166,25 @@ namespace NetworkProfileManager.ViewModels
                 }
 
                 string msg = successMsg();
-                StatusMessage = msg;
                 NotificationService.Success(msg);
                 Refresh();
             }
             catch (Exception ex)
             {
-                NotificationService.Error(ex.Message);
-                StatusMessage = Helpers.Loc.Format(errorKey, ex.Message);
+                NotificationService.Error(ErrorText(errorKey, ex.Message));
             }
             finally
             {
                 IsLoading = false;
             }
         }
+
+        /// <summary>
+        /// Body of the error notification. Its title already says "Error", so the
+        /// plain message is used unless a key adds context ("Revert failed: …").
+        /// </summary>
+        internal static string ErrorText(string? contextKey, string detail)
+            => contextKey == null ? detail : Helpers.Loc.Format(contextKey, detail);
 
         // ── Apply static/DHCP ────────────────────────────────────────
         private async Task ApplyAsync()
@@ -299,7 +303,6 @@ namespace NetworkProfileManager.ViewModels
                     System.Text.Encoding.UTF8);
 
                 string msg = Helpers.Loc.Format("Status.ProfilesExported", models.Count);
-                StatusMessage = msg;
                 NotificationService.Success(msg);
             }
             catch (Exception ex)
@@ -356,7 +359,6 @@ namespace NetworkProfileManager.ViewModels
                         adapter.Profiles.Select(p => p.Model).ToList());
 
                 string msg = Helpers.Loc.Format("Status.ProfilesImported", added, skipped);
-                StatusMessage = msg;
                 if (added > 0) NotificationService.Success(msg);
                 else NotificationService.Warning(msg);
             }
@@ -416,7 +418,6 @@ namespace NetworkProfileManager.ViewModels
                 adapter.EditGateway  = preset.Gateway;
             }
 
-            StatusMessage = Helpers.Loc.Format("Status.PresetLoaded", preset.Name);
         }
 
         private async Task<bool> ConfirmAsync(string title, string message)
@@ -488,7 +489,6 @@ namespace NetworkProfileManager.ViewModels
             adapter.History.Clear();
             var cleared = Helpers.Loc.Get("Status.HistoryCleared", "Geçmiş temizlendi.");
             NotificationService.Info(cleared);
-            StatusMessage = cleared;
         }
 
         // ── Update profile ───────────────────────────────────────────
@@ -504,7 +504,6 @@ namespace NetworkProfileManager.ViewModels
                 SelectedAdapter.Profiles.Select(p => p.Model).ToList());
 
             string msg = Helpers.Loc.Format("Status.ProfileUpdated", updated.Name);
-            StatusMessage = msg;
             NotificationService.Success(msg);
         }
 
@@ -524,7 +523,6 @@ namespace NetworkProfileManager.ViewModels
                 SelectedAdapter.Profiles.Select(p => p.Model).ToList());
 
             string msg = Helpers.Loc.Format("Status.ProfileAdded", profile.Name);
-            StatusMessage = msg;
             NotificationService.Success(msg);
         }
 
